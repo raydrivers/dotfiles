@@ -1,0 +1,38 @@
+[alias]
+    panicfire = "!sh -c 'git commit -am wip && shutdown -h +1 \"Git panicfire engaged\"'"
+
+    local-branches = "log --branches --not --remotes --no-walk --decorate --oneline"
+
+    # Safe force push
+    force-push = "push --force-with-lease"
+
+    # Debug git aliases `git debug <alias>`
+    debug = "!GIT_TRACE=1 git"
+
+    # Pretty graph log
+    log-graph = "log --graph --abbrev-commit --decorate --all"
+
+    # Short version of status
+    status-short = "status --short --branch --renames --ahead-behind"
+
+    # Last commit info - detailed (with diff)
+    last = "!git-last.fish"
+
+    # Verbose remote list - with links
+    remote-verbose = "remote --verbose"
+
+    # Log all unpushed commits
+    unpushed = "!git-unpushed.fish"
+
+    # Interactive rebase all unpushed commits
+    rebase-unpushed = "!git-rebase-unpushed.fish"
+
+    ### Additional Shorthands
+    fp = "force-push"
+    lg = "log-graph"
+    lb = "local-branches"
+    sts = "status-short"
+    rv = "remote-verbose"
+    up = "unpushed"
+    rebup = "rebase-unpushed"
+    wt = "worktree"
