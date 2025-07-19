@@ -1,0 +1,142 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[](fg:primary)\
+$os\
+$username[](bg:green fg:primary)\
+$sudo[](bg:red fg:green)\
+$hostname[](bg:primary fg:red)\
+$directory\
+$git_branch[](fg:primary)\
+$character"""
+
+right_format = """
+[](fg:git_orange)$git_state\
+$git_status\
+[](fg:cmake_green bg:git_orange)$cmake\
+[](fg:nix_blue bg:cmake_green)$nix_shell\
+[](bg:nix_blue fg:tertiary)$direnv\
+[](fg:tertiary)\
+"""
+
+follow_symlinks = true
+add_newline = true
+
+palette = 'primary'
+
+[palettes.primary]
+primary = "#2a52be"
+primary_light = "#3d62c4"
+secondary = "#ffdb20"
+secondary_dark = "#ffb720"
+tertiary = "#522bc1"
+green = "#3b8c3b"
+dark = "#2b2d42"
+red = "#ef233c"
+text_light = "#edf2f4"
+text_dark = "#2b2d42"
+
+cmake_green = "#3e9f57"
+nix_blue = "#1c7aa6"
+git_orange = "#f1502f"
+
+[character]
+success_symbol = "[󰁔 ](green)"
+error_symbol = "[󰁔 ](red)"
+
+[os]
+disabled = true
+format = '[$symbol]($style)'
+style = "bg:primary fg:text_light"
+
+[os.symbols]
+Macos = " "
+Windows = " "
+Linux = " "
+NixOS = " "
+
+[username]
+show_always = true
+disabled = false
+style_user = "bg:primary fg:text_light"
+style_root = "bg:primary fg:red"
+format = '[ $user ]($style)'
+
+[sudo]
+disabled = false
+symbol = '󰞄 '
+format = '[as $symbol](bg:green fg:text_light)'
+
+[hostname]
+ssh_only = true
+disabled = false
+style = "bg:red fg:text_light"
+format = '[ $hostname ]($style)'
+
+[directory]
+style = "bg:primary fg:text_light"
+format = '[ $path ]($style)'
+truncation_length = 4
+truncate_to_repo = true
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+disabled = false
+always_show_remote = true
+symbol = "[](fg:text_light bg:primary)"
+truncation_length = 8
+style = "bg:primary fg:text_light"
+format = '[$symbol $branch ]($style)'
+
+[git_state]
+disabled = false
+rebase = "REBASING"
+merge = "MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
+am = "AM"
+am_or_rebase = "AM/REBASE"
+style = "bg:git_orange fg:text_light"
+format = '[  $state $progress_current|$progress_total]($style)'
+
+[git_status]
+disabled = false
+style = "bg:git_orange fg:text_light"
+behind = ' ${count}'
+ahead = ' ${count}'
+untracked = ' ${count}'
+format = '[ $all_status ]($style)'
+
+[direnv]
+disabled = false
+symbol = " "
+loaded_msg = "󰇚 "
+unloaded_msg = "󱂰 "
+allowed_msg = " "
+not_allowed_msg = " "
+denied_msg = " "
+style = "bg:tertiary fg:text_light"
+format = '[ $loaded|$allowed]($style)'
+
+[nix_shell]
+disabled = false
+symbol = " "
+impure_msg = "󱔆 "
+pure_msg = "󱔄 "
+unknown_msg = "󱡕 "
+style = "bg:nix_blue fg:text_light"
+format = '[ $symbol$state $name ]($style)'
+
+[cmake]
+disabled = true
+symbol = "󰔷 "
+style = "bg:cmake_green fg:text_light"
+format = '[ $symbol$version ]($style)'
+

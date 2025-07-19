@@ -1,0 +1,8 @@
+set -g @charcoal "#1c1f26"     # hsl(220, 9, 13)
+set -g @steel_blue "#5b7a9d"   # hsl(204, 37, 59)
+set -g @lavender "#a192b6"     # hsl(276, 17, 66)
+set -g @muted_green "#8fa68f"  # hsl(92, 14, 55)
+set -g @light_gray "#e4e6e9"   # hsl(210, 8, 90)
+set -g @tan "#d8b374"          # hsl(29, 65, 65)
+set -g @teal "#6b8f92"         # hsl(178, 14, 53)
+set -g @dark_red "#b6555c"     # hsl(355, 46, 56)
