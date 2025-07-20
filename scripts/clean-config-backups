@@ -64,8 +64,8 @@ fi
 
 echo -e "${BLUE}Searching for backup files in: $TARGET_DIR${NC}"
 
-# Find backup files with timestamp pattern
-backup_files=($(find "$TARGET_DIR" -name "*.backup.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]" -type f 2>/dev/null))
+# Find backup files with timestamp pattern (both files and symlinks)
+backup_files=($(find "$TARGET_DIR" -name "*.backup.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]" \( -type f -o -type l \) 2>/dev/null))
 
 if [[ ${#backup_files[@]} -eq 0 ]]; then
     echo -e "${GREEN}No backup files found${NC}"
@@ -75,10 +75,18 @@ fi
 echo -e "${YELLOW}Found ${#backup_files[@]} backup file(s):${NC}"
 for file in "${backup_files[@]}"; do
     # Get file info
-    if [[ -f "$file" ]]; then
-        file_size=$(du -h "$file" | cut -f1)
-        file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d'.' -f1)
-        echo -e "  ${file} (${file_size}, ${file_date})"
+    if [[ -e "$file" || -L "$file" ]]; then
+        if [[ -L "$file" ]]; then
+            # Symlink
+            target=$(readlink "$file" 2>/dev/null || echo "broken")
+            file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d'.' -f1)
+            echo -e "  ${file} -> ${target} (symlink, ${file_date})"
+        else
+            # Regular file
+            file_size=$(du -h "$file" | cut -f1)
+            file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d'.' -f1)
+            echo -e "  ${file} (${file_size}, ${file_date})"
+        fi
     fi
 done
 
@@ -100,7 +108,7 @@ fi
 # Delete backup files
 deleted_count=0
 for file in "${backup_files[@]}"; do
-    if [[ -f "$file" ]]; then
+    if [[ -e "$file" || -L "$file" ]]; then
         if rm "$file" 2>/dev/null; then
             echo -e "${GREEN}✓${NC} Deleted: $file"
             ((deleted_count++))

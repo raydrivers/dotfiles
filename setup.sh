@@ -60,8 +60,8 @@ echo -e "\n${GREEN}Setting up Neovim configuration...${NC}"
 create_link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
 
 # Starship prompt configuration
-echo -e "\n${GREEN}Setting up Starship configuration...${NC}"
-create_link "$DOTFILES_DIR/starship" "$HOME/.config/starship"
+echo -e "\n${GREEN}Starship configurations available in $DOTFILES_DIR/starship/${NC}"
+echo -e "${YELLOW}Use 'starship-change $DOTFILES_DIR/starship/<theme>.toml' to select a starship theme${NC}"
 
 # TMux configuration
 echo -e "\n${GREEN}Setting up TMux configuration...${NC}"
