@@ -16,16 +16,16 @@
     status-short = "status --short --branch --renames --ahead-behind"
 
     # Last commit info - detailed (with diff)
-    last = "!git-last.fish"
+    last = "!git-last"
 
     # Verbose remote list - with links
     remote-verbose = "remote --verbose"
 
     # Log all unpushed commits
-    unpushed = "!git-unpushed.fish"
+    unpushed = "!git-unpushed"
 
     # Interactive rebase all unpushed commits
-    rebase-unpushed = "!git-rebase-unpushed.fish"
+    rebase-unpushed = "!git-rebase-unpushed"
 
     ### Additional Shorthands
     fp = "force-push"
