@@ -1,0 +1,115 @@
+/* Base16 Tomorrow Night Color Palette
+   Base00 (Background): #1d1f21
+   Base01: #282a2e
+   Base02: #373b41
+   Base03 (Foreground Faded): #969896
+   Base04: #b4b7b4
+   Base05 (Foreground): #c5c8c6
+   Base06: #e0e0e0
+   Base07: #ffffff
+   Base08 (Red): #cc6666
+   Base09 (Orange): #de935f
+   Base0A (Yellow): #f0c674
+   Base0B (Green): #b5bd68
+   Base0C (Aqua): #8abeb7
+   Base0D (Blue): #81a2be
+   Base0E (Purple): #b294bb
+   Base0F (Brown): #a3685a
+*/
+
+* {
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+    font-family: "JetBrains Mono Nerdfont";
+    font-weight: bold;
+    font-size: 18px;
+    padding: 0;
+}
+
+window#waybar {
+    background: #1d1f21; /* Base00 */
+    border-bottom: 2px solid #282a2e; /* Base01 */
+}
+
+tooltip {
+    background-color: #1d1f21; /* Base00 */
+    border: 2px solid #373b41; /* Base02 */
+}
+
+#clock,
+#tray,
+#cpu,
+#memory,
+#battery,
+#network,
+#pulseaudio,
+#language {
+    margin: 6px 20px 6px 0px;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+#workspaces {
+    background-color: #282a2e; /* Base01 */
+    margin: 6px 0px 6px 20px;
+    border: 2px solid #373b41; /* Base02 */
+}
+
+#workspaces button {
+    all: initial;
+    min-width: 0;
+    padding: 2px 4px;
+    color: #969896; /* Base03 */
+}
+
+#workspaces button.focused {
+    color: #cc6666; /* Base08 - Red text for focused workspace */
+}
+
+#workspaces button:hover {
+    color: #cc6666; /* Base08 - Red from theme on hover */
+}
+
+#workspaces button.urgent {
+    background-color: #cc6666; /* Base08 */
+    color: #1d1f21; /* Base00 */
+}
+
+#clock {
+    background-color: #282a2e; /* Base01 */
+    border: 2px solid #373b41; /* Base02 */
+    color: #c5c8c6; /* Base05 */
+}
+
+#battery {
+    background-color: #b5bd68; /* Base0B - Green for good battery */
+    border: 2px solid #373b41; /* Base02 */
+    color: #1d1f21; /* Base00 */
+}
+
+#tray,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#language {
+    background-color: #282a2e; /* Base01 */
+    border: 2px solid #373b41; /* Base02 */
+    color: #c5c8c6; /* Base05 */
+}
+
+#cpu.critical,
+#memory.critical {
+    background-color: #cc6666; /* Base08 - Red for critical */
+    border: 2px solid #de935f; /* Base09 */
+    color: #1d1f21; /* Base00 */
+}
+
+#battery.warning,
+#battery.critical,
+#battery.urgent {
+    background-color: #de935f; /* Base09 - Orange for warning/critical/urgent battery */
+    border: 2px solid #cc6666; /* Base08 */
+    color: #1d1f21; /* Base00 */
+}

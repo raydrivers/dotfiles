@@ -120,6 +120,7 @@ end
 
 local themes = themes_from_directory(THEMES_CONFIG_DIR)
 table.insert(themes, { "ramojus/mellifluous.nvim", lazy = false })
+table.insert(themes, { "RRethy/base16-nvim", lazy = false })
 
 add_plugin {
     "rktjmp/lush.nvim",
