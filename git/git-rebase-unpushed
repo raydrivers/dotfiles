@@ -1,0 +1,30 @@
+#!/bin/bash
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [[ -z "$branch" ]]; then
+    echo "Error: Could not determine the current branch."
+    exit 1
+fi
+
+remote=$(git remote | head -n 1)
+if [[ -z "$remote" ]]; then
+    echo "Error: No remote found."
+    exit 1
+fi
+
+if [[ $# -eq 2 ]]; then
+    remote="$1"
+    branch="$2"
+elif [[ $# -eq 1 ]]; then
+    remote="$1"
+fi
+
+git fetch "$remote"
+
+commit=$(git merge-base HEAD "$remote/$branch")
+if [[ -z "$commit" ]]; then
+    echo "Error: Could not determine merge base. Check if the branch exists on remote."
+    exit 1
+fi
+
+git rebase --interactive "$commit" --autosquash
