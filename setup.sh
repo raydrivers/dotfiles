@@ -49,6 +49,7 @@ create_link "$DOTFILES_DIR/git/git-rebase-unpushed" "$HOME/.local/bin/git-rebase
 # Utility scripts
 echo -e "\n${GREEN}Setting up utility scripts...${NC}"
 create_link "$DOTFILES_DIR/scripts/starship-change" "$HOME/.local/bin/starship-change"
+create_link "$DOTFILES_DIR/scripts/clean-config-backups" "$HOME/.local/bin/clean-config-backups"
 
 # Kitty terminal configuration
 echo -e "\n${GREEN}Setting up Kitty configuration...${NC}"
