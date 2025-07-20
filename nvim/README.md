@@ -2,7 +2,7 @@
 This is my own nvim configuration.
 <!--Yeah, I use neovim btw-->
 
-The goal is a **portable**, **readable** config that works across package managers with minimal changes, supporting both NixOS and non-Nix systems.
+The goal is a **portable**, **readable** config that works across package managers with minimal changes.
 
 ### Structure
 
@@ -12,7 +12,7 @@ The goal is a **portable**, **readable** config that works across package manage
     - `options/` – Core configuration and remaps for plugins
     - `pkgs/` – Simple package manager abstraction
     - `plugins/`
-        - Organized by **lifecycle step** (config, init, etc.) – [See this code](https://github.com/udvsharp/nixconfig/blob/main/dotfiles/nvim/lua/udv/plugins/lazy/init.lua#L17)  
+        - Organized by **lifecycle step** (config, init, etc.)  
         - Separate directories for each package manager  
     - `prelude/` – Runs first, before all other configurations  
     - `utils/` – Global utility functions
@@ -25,7 +25,7 @@ The Lua config builds on top of this minimal setup, designed for personal machin
 
 Here's a quick command to get it on any machine:
 ```bash
-[ -f ~/.vimrc ] && mv ~/.vimrc ~/.vimrc.bk; curl -sL https://raw.githubusercontent.com/udvsharp/nixconfig/main/dotfiles/nvim/vimrc.vim -o ~/.vimrc
+[ -f ~/.vimrc ] && mv ~/.vimrc ~/.vimrc.bk; curl -sL https://raw.githubusercontent.com/udvsharp/dotfiles/main/nvim/vimrc.vim -o ~/.vimrc
 ```
 
 ...and to revert this change:

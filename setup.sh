@@ -68,6 +68,18 @@ echo -e "\n${GREEN}Setting up TMux configuration...${NC}"
 create_link "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
 create_link "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
 
+# Hyprland configuration
+echo -e "\n${GREEN}Setting up Hyprland configuration...${NC}"
+create_link "$DOTFILES_DIR/hypr" "$HOME/.config/hypr"
+
+# Waybar configuration
+echo -e "\n${GREEN}Setting up Waybar configuration...${NC}"
+create_link "$DOTFILES_DIR/waybar" "$HOME/.config/waybar"
+
+# Rofi configuration
+echo -e "\n${GREEN}Setting up Rofi configuration...${NC}"
+create_link "$DOTFILES_DIR/rofi" "$HOME/.config/rofi"
+
 # Zsh configuration
 echo -e "\n${GREEN}Setting up Zsh configuration...${NC}"
 create_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
