@@ -27,6 +27,9 @@
     # Interactive rebase all unpushed commits
     rebase-unpushed = "!git-rebase-unpushed"
 
+    # Amend commit without editing message
+    amend = "commit --amend --no-edit"
+
     ### Additional Shorthands
     fp = "force-push"
     lg = "log-graph"

@@ -71,10 +71,6 @@ function safe_require(name)
     return nil
 end
 
-function is_nixos()
-    local uname_info = vim.loop.os_uname().version
-    return string.find(uname_info, "NixOS") ~= nil
-end
 
 function is_windows()
     -- TODO: implement someday

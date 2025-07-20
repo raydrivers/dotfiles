@@ -22,5 +22,8 @@ zstyle ':completion:*' menu select
 # Add .local/bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
+# Set nvim as default editor
+export EDITOR=nvim
+
 # Initialize starship prompt
 eval "$(starship init zsh)"
