@@ -1,122 +1,61 @@
 #!/bin/bash
 
-# Clean backup files created by dotfiles setup
-# Removes backup files with timestamp pattern *.backup.YYYYMMDD_HHMMSS
-
-set -e
+# Clean backup files in ~/.config directory
+# Removes any file containing ".backup." in the name
 
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Default directory to clean
-DEFAULT_DIR="$HOME/.config"
+CONFIG_DIR="$HOME/.config"
 
-# Function to show usage
-show_usage() {
-    echo "Usage: $0 [directory]"
-    echo "  directory: Directory to clean backups from (default: ~/.config)"
-    echo ""
-    echo "This script removes backup files with pattern: *.backup.YYYYMMDD_HHMMSS"
-    echo ""
-    echo "Options:"
-    echo "  -h, --help    Show this help message"
-    echo "  -n, --dry-run Show what would be deleted without actually deleting"
-}
+echo "Searching for backup files in $CONFIG_DIR"
 
-# Parse arguments
-DRY_RUN=false
-TARGET_DIR="$DEFAULT_DIR"
+# Find all files containing .backup. in the name
+find "$CONFIG_DIR" -name "*.backup.*" -type f -o -name "*.backup.*" -type l > /tmp/backup_files.txt 2>/dev/null
 
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        -h|--help)
-            show_usage
-            exit 0
-            ;;
-        -n|--dry-run)
-            DRY_RUN=true
-            shift
-            ;;
-        -*)
-            echo -e "${RED}Error: Unknown option $1${NC}"
-            show_usage
-            exit 1
-            ;;
-        *)
-            TARGET_DIR="$1"
-            shift
-            ;;
-    esac
-done
-
-# Expand tilde in path
-TARGET_DIR="${TARGET_DIR/#\~/$HOME}"
-
-# Check if directory exists
-if [[ ! -d "$TARGET_DIR" ]]; then
-    echo -e "${RED}Error: Directory '$TARGET_DIR' does not exist${NC}"
-    exit 1
-fi
-
-echo -e "${BLUE}Searching for backup files in: $TARGET_DIR${NC}"
-
-# Find backup files with timestamp pattern (both files and symlinks)
-backup_files=($(find "$TARGET_DIR" -name "*.backup.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]" \( -type f -o -type l \) 2>/dev/null))
-
-if [[ ${#backup_files[@]} -eq 0 ]]; then
+# Check if any files were found
+if [[ ! -s /tmp/backup_files.txt ]]; then
     echo -e "${GREEN}No backup files found${NC}"
+    rm -f /tmp/backup_files.txt
     exit 0
 fi
 
-echo -e "${YELLOW}Found ${#backup_files[@]} backup file(s):${NC}"
-for file in "${backup_files[@]}"; do
-    # Get file info
-    if [[ -e "$file" || -L "$file" ]]; then
-        if [[ -L "$file" ]]; then
-            # Symlink
-            target=$(readlink "$file" 2>/dev/null || echo "broken")
-            file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d'.' -f1)
-            echo -e "  ${file} -> ${target} (symlink, ${file_date})"
-        else
-            # Regular file
-            file_size=$(du -h "$file" | cut -f1)
-            file_date=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$file" 2>/dev/null || stat -c "%y" "$file" 2>/dev/null | cut -d'.' -f1)
-            echo -e "  ${file} (${file_size}, ${file_date})"
-        fi
-    fi
-done
+# Show found files
+echo -e "${YELLOW}Found backup files:${NC}"
+cat /tmp/backup_files.txt
 
+file_count=$(wc -l < /tmp/backup_files.txt)
 echo
-
-if [[ "$DRY_RUN" == true ]]; then
-    echo -e "${YELLOW}[DRY RUN] Would delete ${#backup_files[@]} backup file(s)${NC}"
-    exit 0
-fi
+echo "Total: $file_count backup files"
+echo
 
 # Confirm deletion
 read -p "Delete these backup files? [y/N]: " -n 1 -r
 echo
+
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}Cancelled${NC}"
+    rm -f /tmp/backup_files.txt
     exit 0
 fi
 
-# Delete backup files
+# Delete files
 deleted_count=0
-for file in "${backup_files[@]}"; do
-    if [[ -e "$file" || -L "$file" ]]; then
-        if rm "$file" 2>/dev/null; then
-            echo -e "${GREEN}✓${NC} Deleted: $file"
-            ((deleted_count++))
-        else
-            echo -e "${RED}✗${NC} Failed to delete: $file"
-        fi
+while read -r file; do
+    echo "Attempting to delete: $file"
+    if rm "$file"; then
+        echo -e "${GREEN}✓${NC} Deleted: $file"
+        ((deleted_count++))
+    else
+        echo -e "${RED}✗${NC} Failed to delete: $file"
     fi
-done
+done < /tmp/backup_files.txt
 
 echo
-echo -e "${GREEN}Successfully deleted $deleted_count backup file(s)${NC}"
+echo -e "${GREEN}Successfully deleted $deleted_count backup files${NC}"
+
+# Clean up temp file
+rm -f /tmp/backup_files.txt
