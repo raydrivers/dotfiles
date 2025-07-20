@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Starship theme switcher
+# Allows switching between different starship configurations
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STARSHIP_DIR="$SCRIPT_DIR/starship"
+CONFIG_PATH="$HOME/.config/starship.toml"
+
+# Check if starship directory exists
+if [[ ! -d "$STARSHIP_DIR" ]]; then
+    echo -e "${RED}Error: Starship directory not found at $STARSHIP_DIR${NC}"
+    exit 1
+fi
+
+# Find all .toml files in the starship directory
+configs=($(find "$STARSHIP_DIR" -name "*.toml" -type f -exec basename {} \;))
+
+if [[ ${#configs[@]} -eq 0 ]]; then
+    echo -e "${RED}Error: No .toml configuration files found in $STARSHIP_DIR${NC}"
+    exit 1
+fi
+
+# If no argument provided, show available configs and prompt for selection
+if [[ $# -eq 0 ]]; then
+    echo -e "${GREEN}Available Starship configurations:${NC}"
+    echo
+    for i in "${!configs[@]}"; do
+        config="${configs[$i]}"
+        config_name="${config%.toml}"
+        
+        # Check if this config is currently active
+        if [[ -L "$CONFIG_PATH" ]] && [[ "$(readlink "$CONFIG_PATH")" == "$STARSHIP_DIR/$config" ]]; then
+            echo -e "  $((i+1))) ${GREEN}$config_name (current)${NC}"
+        else
+            echo -e "  $((i+1))) $config_name"
+        fi
+    done
+    echo
+    
+    read -p "Select configuration (1-${#configs[@]}): " selection
+    
+    # Validate selection
+    if ! [[ "$selection" =~ ^[0-9]+$ ]] || [[ "$selection" -lt 1 ]] || [[ "$selection" -gt ${#configs[@]} ]]; then
+        echo -e "${RED}Error: Invalid selection${NC}"
+        exit 1
+    fi
+    
+    selected_config="${configs[$((selection-1))]}"
+else
+    # Use provided argument
+    config_name="$1"
+    
+    # Add .toml extension if not provided
+    if [[ "$config_name" != *.toml ]]; then
+        config_name="$config_name.toml"
+    fi
+    
+    # Check if config exists
+    if [[ ! -f "$STARSHIP_DIR/$config_name" ]]; then
+        echo -e "${RED}Error: Configuration '$config_name' not found in $STARSHIP_DIR${NC}"
+        echo -e "${YELLOW}Available configurations:${NC}"
+        for config in "${configs[@]}"; do
+            echo "  ${config%.toml}"
+        done
+        exit 1
+    fi
+    
+    selected_config="$config_name"
+fi
+
+# Create backup of existing config if it exists and is not a symlink
+if [[ -f "$CONFIG_PATH" && ! -L "$CONFIG_PATH" ]]; then
+    echo -e "${YELLOW}Backing up existing starship.toml${NC}"
+    mv "$CONFIG_PATH" "${CONFIG_PATH}.backup.$(date +%Y%m%d_%H%M%S)"
+fi
+
+# Remove existing symlink if it exists
+if [[ -L "$CONFIG_PATH" ]]; then
+    rm "$CONFIG_PATH"
+fi
+
+# Create new symlink
+ln -sf "$STARSHIP_DIR/$selected_config" "$CONFIG_PATH"
+
+config_display_name="${selected_config%.toml}"
+echo -e "${GREEN}✓${NC} Switched to starship configuration: ${GREEN}$config_display_name${NC}"
+echo -e "${YELLOW}Note: Restart your terminal or run 'exec \$SHELL' for changes to take effect${NC}"

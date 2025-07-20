@@ -19,5 +19,8 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 # Menu-style completion
 zstyle ':completion:*' menu select
 
+# Add .local/bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
+
 # Initialize starship prompt
 eval "$(starship init zsh)"
