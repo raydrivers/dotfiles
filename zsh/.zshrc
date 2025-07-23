@@ -1,7 +1,3 @@
-# Conditional includes
-[ -f ~/.posix-profile ] && source ~/.posix-profile
-[ -f /nix/var/nix/profiles/default/etc/profile.d/nix.sh ] && source /nix/var/nix/profiles/default/etc/profile.d/nix.sh
-
 # History
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
@@ -27,4 +23,9 @@ export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=nvim
 
 eval "$(starship init zsh)"
+eval "$(direnv hook zsh)"
+
+# Conditional includes
+[ -f /nix/var/nix/profiles/default/etc/profile.d/nix.sh ] && source /nix/var/nix/profiles/default/etc/profile.d/nix.sh
+[ -f ~/.posix-profile ] && source ~/.posix-profile
 
