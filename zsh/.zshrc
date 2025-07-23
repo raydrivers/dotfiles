@@ -1,29 +1,30 @@
-# Zsh configuration
+# Conditional includes
+[ -f ~/.posix-profile ] && source ~/.posix-profile
+[ -f /nix/var/nix/profiles/default/etc/profile.d/nix.sh ] && source /nix/var/nix/profiles/default/etc/profile.d/nix.sh
 
-# History settings
+# History
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_VERIFY
-setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_VERIFY SHARE_HISTORY
 
-# Enable completion system
-autoload -Uz compinit
-compinit
+# Colors
+autoload -U colors && colors
+export CLICOLOR=1
+export LSCOLORS=ExFxBxDxCxegedabagacad
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 
-# Case insensitive completion
+# Completion
+autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-
-# Menu-style completion
 zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-# Add .local/bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
-
-# Set nvim as default editor
 export EDITOR=nvim
 
-# Initialize starship prompt
 eval "$(starship init zsh)"
+
