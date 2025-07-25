@@ -142,12 +142,18 @@ add_plugin {
         nvim_web_devicons_plugin,
         mini_plugin,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 add_plugin {
     "ThePrimeagen/harpoon",
     name = "harpoon",
     branch = "harpoon2",
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 local treesitter_extension_textobjects = {"nvim-treesitter/nvim-treesitter-textobjects"}
@@ -167,6 +173,9 @@ add_plugin {
     dependencies = {
         nvim_web_devicons_plugin,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"}
@@ -184,6 +193,9 @@ add_plugin {
         telescope_extension_ui_select,
         telescope_extension_fzf_native,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 add_plugin {
@@ -194,6 +206,9 @@ add_plugin {
         vim_devicons_plugin,
     },
     event = "VeryLazy",
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 local lazydev_plugin = {
@@ -236,7 +251,10 @@ add_plugin {
         nvim_web_devicons_plugin,
         nui_plugin,
         window_picker_plugin,
-    }
+    },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 add_plugin {
