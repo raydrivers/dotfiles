@@ -14,7 +14,7 @@ CONFIG_DIR="$HOME/.config"
 echo "Searching for backup files in $CONFIG_DIR"
 
 # Find all files containing .backup. in the name
-find "$CONFIG_DIR" -name "*.backup.*" -type f -o -name "*.backup.*" -type l > /tmp/backup_files.txt 2>/dev/null
+find "$CONFIG_DIR" -name "*.backup.*" -type f -o -name "*.backup.*" -type l 2>/dev/null > /tmp/backup_files.txt
 
 # Check if any files were found
 if [[ ! -s /tmp/backup_files.txt ]]; then

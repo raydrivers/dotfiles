@@ -81,6 +81,13 @@ if [[ "$OSTYPE" != "darwin"* ]]; then
     # Rofi configuration
     echo -e "\n${GREEN}Setting up Rofi configuration...${NC}"
     create_link "$DOTFILES_DIR/rofi" "$HOME/.config/rofi"
+    
+    # SDDM configuration
+    echo -e "\n${GREEN}Setting up SDDM configuration...${NC}"
+    sudo cp -r "$DOTFILES_DIR/sddm/monochrome" "/usr/share/sddm/themes/"
+    sudo cp "$DOTFILES_DIR/sddm/sddm.conf" "/etc/sddm.conf"
+    
+    echo -e "${GREEN}SDDM monochrome theme installed with Wayland support${NC}"
 fi
 
 # Zsh configuration
