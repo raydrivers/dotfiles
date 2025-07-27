@@ -327,4 +327,10 @@ add_plugin {
     name = "gitsigns",
 }
 
+add_plugin {
+    "folke/flash.nvim",
+    name = "flash",
+    event = "VeryLazy",
+}
+
 return plugins
