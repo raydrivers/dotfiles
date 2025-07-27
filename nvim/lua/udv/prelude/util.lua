@@ -71,9 +71,3 @@ function safe_require(name)
     return nil
 end
 
-
-function is_windows()
-    -- TODO: implement someday
-    -- Should support bash, powershell...ough
-    return false
-end

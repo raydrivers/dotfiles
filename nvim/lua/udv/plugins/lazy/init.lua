@@ -156,6 +156,12 @@ add_plugin {
     end,
 }
 
+add_plugin {
+    "folke/flash.nvim",
+    name = "flash",
+    event = "VeryLazy",
+}
+
 local treesitter_extension_textobjects = {"nvim-treesitter/nvim-treesitter-textobjects"}
 local treesitter = add_plugin {
     "nvim-treesitter/nvim-treesitter",
@@ -235,44 +241,6 @@ add_plugin {
     name = "comment",
 }
 
-local window_picker_plugin = add_plugin {
-    "s1n7ax/nvim-window-picker",
-    name = "window-picker",
-    version = "2.*",
-    lazy = true,
-}
-
-add_plugin {
-    "nvim-neo-tree/neo-tree.nvim",
-    name = "neotree",
-    branch = "v3.x",
-    event = "VeryLazy",
-    dependencies = {
-        nvim_web_devicons_plugin,
-        nui_plugin,
-        window_picker_plugin,
-    },
-    cond = function()
-        return not vim.g.vscode
-    end,
-}
-
-add_plugin {
-    "akinsho/toggleterm.nvim",
-    name = "toggleterm",
-    disabled = true,
-    version = "v2.*"
-}
-
--- add_plugin {
---     "nvimdev/dashboard-nvim",
---     name = "dashboard",
---     event = "VimEnter",
---     dependencies = {
---         nvim_web_devicons_plugin,
---     },
--- }
-
 local cmp_nvim_lsp_extension = { "hrsh7th/cmp-nvim-lsp" }
 local cmp_nvim_buffer_extension = { "hrsh7th/cmp-buffer" }
 local cmp_nvim_path_extension = { "hrsh7th/cmp-path" }
@@ -327,10 +295,5 @@ add_plugin {
     name = "gitsigns",
 }
 
-add_plugin {
-    "folke/flash.nvim",
-    name = "flash",
-    event = "VeryLazy",
-}
-
 return plugins
+
