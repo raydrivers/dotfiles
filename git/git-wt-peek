@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(dirname "$(readlink -f "$0")")
+source "$script_dir/git-wt-common"
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: git wt-peek <commit/branch/tag>"
+    echo "Examples:"
+    echo "  git wt-peek main"
+    echo "  git wt-peek abc123f"
+    echo "  git wt-peek v1.2.3"
+    exit 1
+fi
+
+revision="$1"
+
+dev_dir=$(wt_ensure_dev_dir) || exit 1
+peek_path="$dev_dir/peek"
+
+if [[ -d "$peek_path" ]]; then
+    echo "Checking out '$revision' in existing peek worktree"
+    cd "$peek_path"
+    git checkout "$revision"
+else
+    echo "Creating peek worktree and checking out '$revision'"
+    git worktree add "$peek_path" "$revision"
+fi
+
+echo "Peek worktree ready: $peek_path"
+echo "You are now in a subshell. Don't forget to exit when you're done."
+cd "$peek_path"
+exec "$SHELL"

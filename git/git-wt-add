@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+script_dir=$(dirname "$(readlink -f "$0")")
+source "$script_dir/git-wt-common"
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: git wt-add <branch> [path]"
+    echo "Examples:"
+    echo "  git wt-add feature/abc/efg"
+    echo "  git wt-add hotfix/urgent-fix custom/path"
+    exit 1
+fi
+
+branch="$1"
+custom_path="$2"
+
+dev_dir=$(wt_ensure_dev_dir) || exit 1
+
+if [[ -n "$custom_path" ]]; then
+    target_path="$dev_dir/$custom_path"
+else
+    clean_branch=$(wt_clean_branch_path "$branch")
+    target_path="$dev_dir/$clean_branch"
+fi
+
+target_dir=$(dirname "$target_path")
+mkdir -p "$target_dir"
+
+if git show-ref --verify --quiet "refs/heads/$branch"; then
+    echo "Checking out existing branch '$branch' to '$target_path'"
+    git worktree add "$target_path" "$branch"
+else
+    echo "Creating new branch '$branch' and checking out to '$target_path'"
+    git worktree add -b "$branch" "$target_path"
+fi
+
+echo "Worktree added: $target_path"
+echo "To enter: cd $target_path"

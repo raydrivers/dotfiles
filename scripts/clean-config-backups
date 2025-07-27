@@ -10,11 +10,12 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 CONFIG_DIR="$HOME/.config"
+LOCAL_BIN_DIR="$HOME/.local/bin"
 
-echo "Searching for backup files in $CONFIG_DIR"
+echo "Searching for backup files in $CONFIG_DIR and $LOCAL_BIN_DIR"
 
 # Find all files containing .backup. in the name
-find "$CONFIG_DIR" -name "*.backup.*" -type f -o -name "*.backup.*" -type l 2>/dev/null > /tmp/backup_files.txt
+find "$CONFIG_DIR" "$LOCAL_BIN_DIR" -name "*.backup.*" -type f -o -name "*.backup.*" -type l 2>/dev/null > /tmp/backup_files.txt
 
 # Check if any files were found
 if [[ ! -s /tmp/backup_files.txt ]]; then
