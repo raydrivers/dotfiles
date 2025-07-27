@@ -317,6 +317,9 @@ add_plugin {
         mini_plugin,
         treesitter,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 add_plugin {
