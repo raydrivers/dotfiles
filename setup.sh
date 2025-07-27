@@ -45,6 +45,10 @@ mkdir -p "$HOME/.local/bin"
 create_link "$DOTFILES_DIR/git/git-last" "$HOME/.local/bin/git-last"
 create_link "$DOTFILES_DIR/git/git-unpushed" "$HOME/.local/bin/git-unpushed"
 create_link "$DOTFILES_DIR/git/git-rebase-unpushed" "$HOME/.local/bin/git-rebase-unpushed"
+create_link "$DOTFILES_DIR/git/git-wt-common" "$HOME/.local/bin/git-wt-common"
+create_link "$DOTFILES_DIR/git/git-wt-add" "$HOME/.local/bin/git-wt-add"
+create_link "$DOTFILES_DIR/git/git-wt-peek" "$HOME/.local/bin/git-wt-peek"
+create_link "$DOTFILES_DIR/git/wt-" "$HOME/.local/bin/wt-"
 
 # Utility scripts
 echo -e "\n${GREEN}Setting up utility scripts...${NC}"

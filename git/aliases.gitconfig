@@ -39,3 +39,6 @@
     up = "unpushed"
     rebup = "rebase-unpushed"
     wt = "worktree"
+
+    wt-add = "!git-wt-add"
+    wt-peek = "!git-wt-peek"
