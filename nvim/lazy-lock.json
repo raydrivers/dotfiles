@@ -7,13 +7,14 @@
   "cmp-path": { "branch": "main", "commit": "c6635aae33a50d6010bf1aa756ac2398a2d54c32" },
   "cmp_luasnip": { "branch": "master", "commit": "98d9cb5c2c38532bd9bdb481067b20fea8f32e90" },
   "comment": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
+  "flash": { "branch": "main", "commit": "3c942666f115e2811e959eabbdd361a025db8b63" },
   "gitsigns": { "branch": "main", "commit": "fcfa7a989cd6fed10abf02d9880dc76d7a38167d" },
   "harpoon": { "branch": "harpoon2", "commit": "ed1f853847ffd04b2b61c314865665e1dadf22c7" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
   "lazydev.nvim": { "branch": "main", "commit": "2367a6c0a01eb9edb0464731cc0fb61ed9ab9d2c" },
   "lspconfig": { "branch": "master", "commit": "c40a2dca6e4a4f4af262375dcb71692882b6122c" },
   "lspkind.nvim": { "branch": "master", "commit": "d79a1c3299ad0ef94e255d045bed9fa26025dab6" },
-  "lualine": { "branch": "master", "commit": "f4f791f67e70d378a754d02da068231d2352e5bc" },
+  "lualine": { "branch": "master", "commit": "86fe39534b7da729a1ac56c0466e76f2c663dc42" },
   "luasnip": { "branch": "master", "commit": "03c8e67eb7293c404845b3982db895d59c0d1538" },
   "lush.nvim": { "branch": "main", "commit": "45a79ec4acb5af783a6a29673a999ce37f00497e" },
   "mellifluous.nvim": { "branch": "main", "commit": "d71befcc29b17c6f973fc54f1d8a58c4c1cf4758" },
@@ -30,7 +31,6 @@
   "telescope-ui-select.nvim": { "branch": "master", "commit": "6e51d7da30bd139a6950adf2a47fda6df9fa06d2" },
   "treesitter": { "branch": "master", "commit": "684eeac91ed8e297685a97ef70031d19ac1de25a" },
   "vim-devicons": { "branch": "master", "commit": "71f239af28b7214eebb60d4ea5bd040291fb7e33" },
-  "vscode-neovim": { "branch": "master", "commit": "f0ad11658e739bdd7f78cd698c4f5a10efb5a735" },
   "whichkey": { "branch": "main", "commit": "370ec46f710e058c9c1646273e6b225acf47cbed" },
   "window-picker": { "branch": "main", "commit": "6382540b2ae5de6c793d4aa2e3fe6dbb518505ec" }
 }
