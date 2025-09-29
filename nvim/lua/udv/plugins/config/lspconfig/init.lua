@@ -1,24 +1,13 @@
 local function on_attach(client, bufnr)
     local opts = { buffer = bufnr, remap = false, }
 
-    local lb = vim.lsp.buf
-
-    if client.supports_method("textDocument/rename") then
-        vim.keymap.set("n", "<leader>rn", lb.rename, opts)
+    if client.supports_method("textDocument/inlayHint") then
+        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
     end
 
-    if client.supports_method("textDocument/implementation") then
-        vim.keymap.set("n", "gi", lb.implementation, opts)
-    end
-
-    vim.keymap.set({ "n", "v" }, "<leader>ca", lb.code_action, opts)
-    vim.keymap.set("n", "gd", lb.definition, opts)
-    vim.keymap.set("n", "gD", lb.declaration, opts)
-    vim.keymap.set("n", "gr", lb.references, opts)
-    vim.keymap.set({ "n", "i" }, "<c-p>", lb.signature_help, opts)
-
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_next, opts)
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, opts)
+    vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
+    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
+    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 end
 
 -- Configure LSP servers

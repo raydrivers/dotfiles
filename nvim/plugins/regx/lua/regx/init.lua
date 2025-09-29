@@ -10,7 +10,7 @@ regx.__index = regx
 regx.patterns = {}
 
 local function get_open_cmd(url)
-    local sysname = vim.loop.os_uname().sysname
+    local sysname = vim.uv.os_uname().sysname
 
     if sysname == "Darwin" then
         return { "open", url}
