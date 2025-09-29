@@ -42,3 +42,7 @@
 
     wt-add = "!git-wt-add"
     wt-peek = "!git-wt-peek"
+
+    # Diff shortcuts
+    d = "diff"
+    sd = "diff --staged"

@@ -75,6 +75,9 @@ local nvim_web_devicons_plugin = {
 local mini_plugin = {
     "echasnovski/mini.nvim",
     version = "*",
+    config = function()
+        require("udv.plugins.config.mini-pairs")
+    end,
 }
 
 local vim_devicons_plugin = {
@@ -94,7 +97,7 @@ add_local_plugin {
 local function themes_from_directory(directory)
     local themes = {}
 
-    local uv = vim.loop
+    local uv = vim.uv
     local handle = uv.fs_scandir(directory)
 
     if not handle then
@@ -132,6 +135,7 @@ add_plugin {
 ---- Core plugins
 add_plugin {
     "folke/which-key.nvim",
+    disabled = true,
     name = "whichkey",
     event = "VeryLazy",
     dependencies = {
@@ -180,11 +184,15 @@ add_plugin {
     end,
 }
 
-local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"}
+local telescope_extension_ui_select = add_plugin {
+    "nvim-telescope/telescope-ui-select.nvim",
+    name = "telescope-ui-select",
+}
 
-local telescope_extension_fzf_native = {
+local telescope_extension_fzf_native = add_plugin {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = make,
+    name = "telescope-fzf-native",
+    build = "make",
 }
 
 add_plugin {
@@ -268,10 +276,16 @@ add_plugin {
     },
 }
 
+
 add_plugin {
-    "jiangmiao/auto-pairs",
-    name = "auto-pairs",
-    tag = "v2.0.0",
+    "folke/trouble.nvim",
+    name = "trouble",
+    dependencies = {
+        nvim_web_devicons_plugin,
+    },
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 add_plugin {
