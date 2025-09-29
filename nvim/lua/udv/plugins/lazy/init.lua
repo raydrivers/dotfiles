@@ -101,7 +101,7 @@ add_local_plugin {
 local function themes_from_directory(directory)
     local themes = {}
 
-    local uv = vim.loop
+    local uv = vim.uv
     local handle = uv.fs_scandir(directory)
 
     if not handle then
@@ -191,7 +191,7 @@ local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"
 
 local telescope_extension_fzf_native = {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = make,
+    build = "make",
 }
 
 add_plugin {
