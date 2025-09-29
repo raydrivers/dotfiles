@@ -1,6 +1,4 @@
-local lspconfig = require("lspconfig")
-
-lspconfig.clangd.setup({
+vim.lsp.config.clangd = {
     cmd = {
         "clangd",
         "--background-index",
@@ -58,8 +56,10 @@ lspconfig.clangd.setup({
         "i",  -- Preprocessed source (C/C++)
         "ii", -- Preprocessed source (C++)
     },    
-    offsetEncoding = { "utf-8", "utf-16" },
-})
+    capabilities = {
+        offsetEncoding = { "utf-8", "utf-16" },
+    },
+}
 
 vim.keymap.set(
     "n",

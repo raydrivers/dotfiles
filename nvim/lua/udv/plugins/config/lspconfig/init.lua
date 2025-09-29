@@ -1,5 +1,3 @@
-local lspconfig = require("lspconfig")
-
 local function on_attach(client, bufnr)
     local opts = { buffer = bufnr, remap = false, }
 
@@ -16,16 +14,14 @@ local function on_attach(client, bufnr)
     vim.keymap.set({ "n", "v" }, "<leader>ca", lb.code_action, opts)
     vim.keymap.set("n", "gd", lb.definition, opts)
     vim.keymap.set("n", "gD", lb.declaration, opts)
-    vim.keymap.set("n", "gr", function()
-        builtin.lsp_references()
-    end, opts)
+    vim.keymap.set("n", "gr", lb.references, opts)
     vim.keymap.set({ "n", "i" }, "<c-p>", lb.signature_help, opts)
 
     vim.keymap.set("n", "[d", vim.diagnostic.goto_next, opts)
     vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, opts)
 end
 
--- Each LSP setup
+-- Configure LSP servers
 require("udv.plugins.config.lspconfig.clangd")
 require("udv.plugins.config.lspconfig.lua_ls")
 require("udv.plugins.config.lspconfig.rust_analyzer")
@@ -33,6 +29,17 @@ require("udv.plugins.config.lspconfig.cmake")
 require("udv.plugins.config.lspconfig.pyright")
 require("udv.plugins.config.lspconfig.nil_ls")
 require("udv.plugins.config.lspconfig.elixirls")
+
+-- Enable all configured LSP servers
+vim.lsp.enable({
+    'clangd',
+    'lua_ls',
+    'rust_analyzer',
+    'cmake',
+    'pyright',
+    'nil_ls',
+    'elixirls'
+})
 
 -- Events
 vim.api.nvim_create_autocmd("LspAttach", {
