@@ -1,17 +1,5 @@
--- Inspired by https://github.com/nvim-lualine/lualine.nvim/blob/master/examples/evil_lualine.lua
--- Idea of left/right components is intuitive
-
 local lualine = require("lualine")
 
-local function hl(group)
-    local hl = vim.api.nvim_get_hl_by_name(group, true)
-    
-    hl.bg = hl.background and string.format("#%06x", hl.background) or nil
-    hl.fg = hl.foreground and string.format("#%06x", hl.foreground) or nil
-    hl.sp = hl.special and string.format("#%06x", hl.special) or nil
-
-    return hl
-end
 
 local conditions = {
     buffer_not_empty = function()
@@ -27,18 +15,6 @@ local conditions = {
     end,
 }
 
-local theme = {
-    -- We are going to use lualine_c an lualine_x as left and
-    -- right section. Both are highlighted by c theme .  So we
-    -- are just setting default looks o statusline
-    normal = {
-        c = hl("Lualine"),
-    },
-    inactive = {
-        c = hl("LualineInactive"),
-    },
-}
-
 -- Config
 local config = {
     options = {
@@ -46,20 +22,17 @@ local config = {
             "neo-tree",
             "dashboard",
         },
-        -- Disable sections and component separators
         component_separators = '',
         section_separators = '',
-        theme = theme,
+        theme = "auto",
     },
     sections = {
-        -- Reset defaults
-        lualine_a = {},
-        lualine_b = {},
-        lualine_y = {},
-        lualine_z = {},
-        -- These will be filled later
-        lualine_c = {},
-        lualine_x = {},
+        lualine_a = {}, -- Mode section
+        lualine_b = {}, -- File info section
+        lualine_c = {}, -- Main Left section
+        lualine_x = {}, -- Main right section
+        lualine_y = {}, -- Info section
+        lualine_z = {}, -- Status section
     },
     inactive_sections = {
         -- Reset defaults
@@ -72,6 +45,24 @@ local config = {
     },
 }
 
+local function set_mode(component)
+    config.sections.lualine_a = { component }
+end
+
+local function ins_left_main(component)
+    if #config.sections.lualine_b >= 2 then
+        error("ins_left_main: lualine_b section already has 2 components, cannot add more")
+    end
+    table.insert(config.sections.lualine_b, component)
+end
+
+local function ins_right_main(component)
+    if #config.sections.lualine_y >= 2 then
+        error("ins_right_main: lualine_y section already has 2 components, cannot add more")
+    end
+    table.insert(config.sections.lualine_y, component)
+end
+
 local function ins_left(component)
     table.insert(config.sections.lualine_c, component)
 end
@@ -80,16 +71,11 @@ local function ins_right(component)
     table.insert(config.sections.lualine_x, component)
 end
 
-ins_left {
-    function()
-        return '▊'
-    end,
-    color = hl("LualineIndicator"),
-    padding = { left = 0, right = 1 },
-}
+local function set_status(component)
+    config.sections.lualine_z = { component }
+end
 
-ins_left {
-    -- mode component
+set_mode {
     function()
         local mode = vim.fn.mode()
         local mode_names = {
@@ -116,77 +102,36 @@ ins_left {
         }
         return "∛ " .. (mode_names[mode] or mode)
     end,
-    color = function()
-        local mode = vim.fn.mode()
-        local mode_color = {
-            n =       hl("LualineModeNormal"),
-            i =       hl("LualineModeInsert"),
-            v =       hl("LualineModeVisual"),
-            [''] =  hl("LualineModeVisual"),
-            V =       hl("LualineModeVisual"),
-            c =       hl("LualineModeCommand"),
-            no =      hl("LualineModeNormal"),
-            s =       hl("LualineModeSelect"),
-            S =       hl("LualineModeSelect"),
-            [''] =  hl("LualineModeSelect"),
-            ic =      hl("LualineModeInsertCompletion"),
-            R =       hl("LualineModeReplace"),
-            Rv =      hl("LualineModeReplace"),
-            cv =      hl("LualineModeNormal"),
-            ce =      hl("LualineModeNormal"),
-            r =       hl("LualineModePrompt"),
-            rm =      hl("LualineModePrompt"),
-            ['r?'] =  hl("LualineModePrompt"),
-            ['!'] =   hl("LualineModeNormal"),
-            t =       hl("LualineModeTerminal"),
-        }
-        return mode_color[mode]
-    end,
-    padding = { left = 2, right = 2 },
 }
 
-ins_left {
+ins_left_main {
     'filesize',
     cond = conditions.buffer_not_empty,
 }
 
-ins_left {
+ins_left_main {
     'filename',
     cond = conditions.buffer_not_empty,
-    color = hl("LualineCFilename"),
 }
 
 ins_left {
-    'location',
-    color = hl("LualineCProgress"),
+    'o:encoding',
+    fmt = string.upper,
+    cond = conditions.hide_in_width,
 }
 
 ins_left {
-    'progress',
-    color = hl("LualineCProgress"),
+    'branch',
+    icon = '',
 }
 
-ins_left {
+ins_right {
     'diagnostics',
     sources = { 'nvim_diagnostic' },
     symbols = { error = ' ', warn = ' ', info = ' ' },
-    diagnostics_color = {
-        error = hl("LualineCDiagnosticError"),
-        warn  = hl("LualineCDiagnosticWarn"),
-        info  = hl("LualineCDiagnosticInfo"),
-    },
 }
 
--- Insert mid section. You can make any number of sections in neovim :)
--- for lualine it's any number greater then 2
-ins_left {
-    function()
-        return '%='
-    end,
-}
-
--- Add components to right sections
-ins_right {
+ins_right_main {
     function()
         local msg = 'No Active LSP'
         local buf_ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
@@ -203,47 +148,11 @@ ins_right {
         return msg
     end,
     icon = ' LSP:',
-    color = hl("LualineCLSP")
 }
 
-ins_right {
-    'o:encoding',
-    fmt = string.upper,
-    cond = conditions.hide_in_width,
-    color = hl("LualineCEncoding")
+set_status {
+    'location'
 }
 
-ins_right {
-    'fileformat',
-    fmt = string.upper,
-    icons_enabled = true,
-    color = hl("LualineCFileformat")
-}
-
-ins_right {
-    'branch',
-    icon = '',
-    color = hl("LualineCVCSBranch")
-}
-
-ins_right {
-    'diff',
-    symbols = { added = ' ', modified = '󰝤 ', removed = ' ' },
-    diff_color = {
-        added    = hl("LualineCVCSDiffAdded"),
-        removed  = hl("LualineCVCSDiffRemoved"),
-        modified = hl("LualineCVCSDiffModified"),
-    },
-    cond = conditions.hide_in_width,
-}
-
-ins_right {
-    function()
-        return '▊'
-    end,
-    color = hl("LualineIndicator"),
-    padding = { left = 1, right = 0, },
-}
-
--- Initialization
 lualine.setup(config)
+
