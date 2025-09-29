@@ -97,7 +97,7 @@ add_local_plugin {
 local function themes_from_directory(directory)
     local themes = {}
 
-    local uv = vim.uv
+    local uv = vim.loop
     local handle = uv.fs_scandir(directory)
 
     if not handle then
@@ -135,7 +135,6 @@ add_plugin {
 ---- Core plugins
 add_plugin {
     "folke/which-key.nvim",
-    disabled = true,
     name = "whichkey",
     event = "VeryLazy",
     dependencies = {
@@ -184,15 +183,11 @@ add_plugin {
     end,
 }
 
-local telescope_extension_ui_select = add_plugin {
-    "nvim-telescope/telescope-ui-select.nvim",
-    name = "telescope-ui-select",
-}
+local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"}
 
-local telescope_extension_fzf_native = add_plugin {
+local telescope_extension_fzf_native = {
     "nvim-telescope/telescope-fzf-native.nvim",
-    name = "telescope-fzf-native",
-    build = "make",
+    build = make,
 }
 
 add_plugin {
@@ -276,17 +271,6 @@ add_plugin {
     },
 }
 
-
-add_plugin {
-    "folke/trouble.nvim",
-    name = "trouble",
-    dependencies = {
-        nvim_web_devicons_plugin,
-    },
-    cond = function()
-        return not vim.g.vscode
-    end,
-}
 
 add_plugin {
     "MeanderingProgrammer/render-markdown.nvim",
