@@ -1,18 +1,11 @@
 
 local telescope = require("telescope")
 local actions = require("telescope.actions")
+local themes = require("telescope.themes")
 
 local config = {
-    -- defaults = {
-    --     -- TODO: vimgrep_arguments
-    --     path_display = { "truncate" },
-    --     theme = "dropdown",
-    -- },
-    defaults = {},
-    pickers = {
-        find_files = {
-            theme = "dropdown",
-        }
+    defaults = themes.get_ivy {
+        path_display = { "truncate" },
     },
     extensions = {
         fzf = {
@@ -26,5 +19,6 @@ local config = {
 
 telescope.setup(config)
 
--- Extensions
 telescope.load_extension("ui-select")
+telescope.load_extension("fzf")
+
