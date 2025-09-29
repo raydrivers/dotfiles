@@ -1,0 +1,2 @@
+require('mini.pairs').setup()
+
