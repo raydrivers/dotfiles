@@ -75,6 +75,9 @@ local nvim_web_devicons_plugin = {
 local mini_plugin = {
     "echasnovski/mini.nvim",
     version = "*",
+    config = function()
+        require("udv.plugins.config.mini-pairs")
+    end,
 }
 
 local vim_devicons_plugin = {
@@ -272,11 +275,6 @@ add_plugin {
     },
 }
 
-add_plugin {
-    "jiangmiao/auto-pairs",
-    name = "auto-pairs",
-    tag = "v2.0.0",
-}
 
 add_plugin {
     "MeanderingProgrammer/render-markdown.nvim",
