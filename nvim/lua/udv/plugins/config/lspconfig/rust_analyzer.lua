@@ -1,3 +1,1 @@
-local lspconfig = require("lspconfig")
-
-lspconfig.rust_analyzer.setup({})
+vim.lsp.config.rust_analyzer = {}

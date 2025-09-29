@@ -1,6 +1,4 @@
-local lspconfig = require("lspconfig")
-
-lspconfig.pyright.setup({
+vim.lsp.config.pyright = {
     filetypes = { "python" },
-})
+}
 

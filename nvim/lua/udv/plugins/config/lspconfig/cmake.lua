@@ -1,3 +1,1 @@
-local lspconfig = require("lspconfig")
-
-lspconfig.cmake.setup({})
+vim.lsp.config.cmake = {}
