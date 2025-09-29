@@ -8,6 +8,8 @@ local function on_attach(client, bufnr)
     vim.keymap.set({ "n", "i" }, "<c-p>", vim.lsp.buf.signature_help, opts)
     vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
     vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+    vim.keymap.set("n", "<leader>f", vim.lsp.buf.code_action, opts)
+    vim.keymap.set("n", "<leader>q", vim.diagnostic.setqflist, opts)
 end
 
 -- Configure LSP servers

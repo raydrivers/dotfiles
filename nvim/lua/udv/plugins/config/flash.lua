@@ -1,28 +1,28 @@
 local flash = require("flash")
 
 flash.setup({
-  modes = {
-    search = {
-      enabled = false,
+    modes = {
+        search = {
+            enabled = false,
+        },
+        char = {
+            enabled = false,
+        },
     },
-    char = {
-      enabled = false,
-    },
-  },
 })
 
 vim.keymap.set({ "n", "x", "o" }, "s", function()
-  flash.jump()
+    flash.jump()
 end, { desc = "Flash" })
 
 vim.keymap.set({ "n", "x", "o" }, "S", function()
-  flash.treesitter()
+    flash.treesitter()
 end, { desc = "Flash Treesitter" })
 
 vim.keymap.set("o", "r", function()
-  flash.remote()
+    flash.remote()
 end, { desc = "Remote Flash" })
 
 vim.keymap.set({ "o", "x" }, "R", function()
-  flash.treesitter_search()
+    flash.treesitter_search()
 end, { desc = "Treesitter Search" })

@@ -15,7 +15,6 @@ local conditions = {
     end,
 }
 
--- Config
 local config = {
     options = {
         disabled_filetypes = {
@@ -131,23 +130,40 @@ ins_right {
     symbols = { error = ' ', warn = ' ', info = ' ' },
 }
 
+ins_right {
+    'filetype',
+}
+
 ins_right_main {
     function()
-        local msg = 'No Active LSP'
-        local buf_ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
-        local clients = vim.lsp.get_clients()
-        if next(clients) == nil then
-            return msg
-        end
-        for _, client in ipairs(clients) do
-            local filetypes = client.config.filetypes
-            if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-                return client.name
+        local indicators = {}
+
+        -- Harpoon indicator
+        local harpoon = require("harpoon")
+        local current_file = vim.fn.expand("%:p")
+
+        if current_file ~= "" then
+            local list = harpoon:list()
+            for i = 1, list:length() do
+                local item = list:get(i)
+                if item and item.value and vim.fn.fnamemodify(item.value, ":p") == current_file then
+                    table.insert(indicators, "♆ " .. i)
+                    break
+                end
             end
         end
-        return msg
+
+        -- Trailing whitespace indicator
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        for _, line in ipairs(lines) do
+            if line:match("%s$") then
+                table.insert(indicators, "⚐")
+                break
+            end
+        end
+
+        return table.concat(indicators, " ")
     end,
-    icon = ' LSP:',
 }
 
 set_status {

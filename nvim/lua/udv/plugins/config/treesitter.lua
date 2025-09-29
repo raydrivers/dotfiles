@@ -2,9 +2,16 @@ local configs = require("nvim-treesitter.configs")
 
 configs.setup({
     ensure_installed = {
+        "asm",
+        "awk",
         "c",
         "cpp",
+        "objc",
+        "perl",
         "cmake",
+        "make",
+        "cuda",
+        "go",
         "vim",
         "vimdoc",
         "json",
@@ -13,6 +20,7 @@ configs.setup({
         "html",
         "css",
         "javascript",
+        "php",
         "doxygen",
         "glsl",
         "hlsl",
@@ -25,16 +33,19 @@ configs.setup({
         "zig",
         "rust",
         "lua",
+        "luadoc",
         "markdown",
     },
     ignore_install = {},
     sync_install = false,
     auto_install = true,
     highlight = {
-        enable = true
+        enable = true,
+        disable = {},
     },
     indent = {
-        enable = true
+        enable = true,
+        additional_vim_regex_highlighting = false,
     },
     incremental_selection = {
         enable = true,

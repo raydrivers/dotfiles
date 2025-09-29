@@ -139,6 +139,7 @@ add_plugin {
 ---- Core plugins
 add_plugin {
     "folke/which-key.nvim",
+    disabled = true,
     name = "whichkey",
     event = "VeryLazy",
     dependencies = {
@@ -187,10 +188,14 @@ add_plugin {
     end,
 }
 
-local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"}
+local telescope_extension_ui_select = add_plugin {
+    "nvim-telescope/telescope-ui-select.nvim",
+    name = "telescope-ui-select",
+}
 
-local telescope_extension_fzf_native = {
+local telescope_extension_fzf_native = add_plugin {
     "nvim-telescope/telescope-fzf-native.nvim",
+    name = "telescope-fzf-native",
     build = "make",
 }
 
@@ -275,6 +280,17 @@ add_plugin {
     },
 }
 
+
+add_plugin {
+    "folke/trouble.nvim",
+    name = "trouble",
+    dependencies = {
+        nvim_web_devicons_plugin,
+    },
+    cond = function()
+        return not vim.g.vscode
+    end,
+}
 
 add_plugin {
     "MeanderingProgrammer/render-markdown.nvim",
