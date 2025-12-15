@@ -237,59 +237,10 @@ local lazydev_plugin = {
 }
 
 add_plugin {
-    "neovim/nvim-lspconfig",
-    name = "lspconfig",
-    dependencies = {
-        lazydev_plugin,
-    }
-}
-
-add_plugin {
-    'numToStr/Comment.nvim',
-    name = "comment",
-}
-
-local cmp_nvim_lsp_extension = { "hrsh7th/cmp-nvim-lsp" }
-local cmp_nvim_buffer_extension = { "hrsh7th/cmp-buffer" }
-local cmp_nvim_path_extension = { "hrsh7th/cmp-path" }
-local cmp_luasnip_extension = { "saadparwaiz1/cmp_luasnip" }
-
-local lspkind_plugin = { "onsails/lspkind.nvim" }
-
-local luasnip = add_plugin {
     "L3MON4D3/LuaSnip",
     name = "luasnip",
     tag = "v2.3.0",
     run = "make install jsregexp"
-}
-
-add_plugin {
-    "hrsh7th/nvim-cmp",
-    name = "cmp",
-    lazy = false,
-    priority = LOAD_EARLY_PRIORITY,
-    dependencies = {
-        cmp_nvim_lsp_extension,
-        cmp_nvim_buffer_extension,
-        cmp_nvim_path_extension,
-        cmp_luasnip_extension,
-
-        lspkind_plugin,
-
-        luasnip,
-    },
-}
-
-
-add_plugin {
-    "folke/trouble.nvim",
-    name = "trouble",
-    dependencies = {
-        nvim_web_devicons_plugin,
-    },
-    cond = function()
-        return not vim.g.vscode
-    end,
 }
 
 add_plugin {

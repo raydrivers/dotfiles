@@ -1,3 +1,6 @@
 require("udv.options.remaps")
 require("udv.options.colors")
 require("udv.options.spellcheck")
+require("udv.options.format")
+require("udv.options.diff")
+require("udv.lsp")
