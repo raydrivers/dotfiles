@@ -9,6 +9,7 @@ let maplocalleader = " "
 set noshowmode
 set cursorline
 set signcolumn=yes
+set winborder=rounded
 
 " Line numbers
 set number relativenumber
@@ -117,6 +118,8 @@ nnoremap <leader>j :cnext<CR>zz
 nnoremap <leader>k :cprev<CR>zz
 nnoremap <leader>J :lnext<CR>zz
 nnoremap <leader>K :lprev<CR>zz
+nnoremap <leader>q :copen<CR>
+nnoremap <C-q> :cclose<CR>
 
 " Find & Replace current word
 nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>

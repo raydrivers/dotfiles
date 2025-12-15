@@ -1,4 +1,4 @@
-vim.lsp.config.nil_ls = {
+return {
     cmd = { "nil" },
     settings = {
         ['nil'] = {

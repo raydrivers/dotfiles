@@ -1,34 +1,29 @@
-# `nvim` config
-This is my own nvim configuration.
-<!--Yeah, I use neovim btw-->
+# nvim config
 
-The goal is a **portable**, **readable** config that works across package managers with minimal changes.
+Portable, readable, non-bloat Neovim configuration.
 
-### Structure
+## Structure
 
-- [`./plugins`](./plugins) – Custom plugins  
-- [`./themes`](./themes) – Custom color schemes (built with [`lush.nvim`](https://github.com/rktjmp/lush.nvim))  
+- `plugins/` – Custom plugins
+- `themes/` – Color schemes (lush.nvim)
 - `lua/`
-    - `options/` – Core configuration and remaps for plugins
-    - `pkgs/` – Simple package manager abstraction
-    - `plugins/`
-        - Organized by **lifecycle step** (config, init, etc.)  
-        - Separate directories for each package manager  
-    - `prelude/` – Runs first, before all other configurations  
-    - `utils/` – Global utility functions
+  - `options/` – Core config and remaps
+  - `pkgs/` – Package manager abstraction
+  - `plugins/` – Plugin configs by lifecycle
+  - `prelude/` – First-run configuration
+  - `utils/` – Global utilities
 
-### Portability
-[`.vimrc`](./vimrc.vim) contains a minimal setup for any environment, enabling Vim/Neovim with essential hotkeys.
-The goal is to override as little as possible, so I can still use plain vim on any machine.
+## Portability
 
-The Lua config builds on top of this minimal setup, designed for personal machines where plugins are allowed.
+[`vimrc.vim`](./vimrc.vim) provides minimal setup for any environment.
+Lua config builds on top - to be used on machines where plugins are allowed.
 
-Here's a quick command to get it on any machine:
+Install:
 ```bash
-[ -f ~/.vimrc ] && mv ~/.vimrc ~/.vimrc.bk; curl -sL https://raw.githubusercontent.com/udvsharp/dotfiles/main/nvim/vimrc.vim -o ~/.vimrc
+[ -f ~/.vimrc ] && mv ~/.vimrc ~/.vimrc.bk; curl -sL https://raw.githubusercontent.com/raydrivers/dotfiles/main/nvim/vimrc.vim -o ~/.vimrc
 ```
 
-...and to revert this change:
+Revert:
 ```bash
 [ -f ~/.vimrc.bk ] && mv ~/.vimrc.bk ~/.vimrc || [ -f ~/.vimrc ] && rm ~/.vimrc
 ```
