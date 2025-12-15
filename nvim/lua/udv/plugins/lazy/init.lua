@@ -97,7 +97,7 @@ add_local_plugin {
 local function themes_from_directory(directory)
     local themes = {}
 
-    local uv = vim.loop
+    local uv = vim.uv
     local handle = uv.fs_scandir(directory)
 
     if not handle then
@@ -135,6 +135,7 @@ add_plugin {
 ---- Core plugins
 add_plugin {
     "folke/which-key.nvim",
+    disabled = true,
     name = "whichkey",
     event = "VeryLazy",
     dependencies = {
@@ -183,11 +184,15 @@ add_plugin {
     end,
 }
 
-local telescope_extension_ui_select = {"nvim-telescope/telescope-ui-select.nvim"}
+local telescope_extension_ui_select = add_plugin {
+    "nvim-telescope/telescope-ui-select.nvim",
+    name = "telescope-ui-select",
+}
 
-local telescope_extension_fzf_native = {
+local telescope_extension_fzf_native = add_plugin {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = make,
+    name = "telescope-fzf-native",
+    build = "make",
 }
 
 add_plugin {
@@ -228,49 +233,10 @@ local lazydev_plugin = {
 }
 
 add_plugin {
-    "neovim/nvim-lspconfig",
-    name = "lspconfig",
-    dependencies = {
-        lazydev_plugin,
-    }
-}
-
-add_plugin {
-    'numToStr/Comment.nvim',
-    name = "comment",
-}
-
-local cmp_nvim_lsp_extension = { "hrsh7th/cmp-nvim-lsp" }
-local cmp_nvim_buffer_extension = { "hrsh7th/cmp-buffer" }
-local cmp_nvim_path_extension = { "hrsh7th/cmp-path" }
-local cmp_luasnip_extension = { "saadparwaiz1/cmp_luasnip" }
-
-local lspkind_plugin = { "onsails/lspkind.nvim" }
-
-local luasnip = add_plugin {
     "L3MON4D3/LuaSnip",
     name = "luasnip",
-    tag = "v2.3.0",
     run = "make install jsregexp"
 }
-
-add_plugin {
-    "hrsh7th/nvim-cmp",
-    name = "cmp",
-    lazy = false,
-    priority = LOAD_EARLY_PRIORITY,
-    dependencies = {
-        cmp_nvim_lsp_extension,
-        cmp_nvim_buffer_extension,
-        cmp_nvim_path_extension,
-        cmp_luasnip_extension,
-
-        lspkind_plugin,
-
-        luasnip,
-    },
-}
-
 
 add_plugin {
     "MeanderingProgrammer/render-markdown.nvim",
@@ -279,6 +245,18 @@ add_plugin {
         mini_plugin,
         treesitter,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
+}
+
+add_plugin {
+    "saghen/blink.cmp",
+    name = "blink-cmp",
+    dependencies = {
+        luasnip,
+    },
+    version = "1.*",
     cond = function()
         return not vim.g.vscode
     end,
