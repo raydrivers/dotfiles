@@ -239,7 +239,6 @@ local lazydev_plugin = {
 add_plugin {
     "L3MON4D3/LuaSnip",
     name = "luasnip",
-    tag = "v2.3.0",
     run = "make install jsregexp"
 }
 
@@ -250,6 +249,18 @@ add_plugin {
         mini_plugin,
         treesitter,
     },
+    cond = function()
+        return not vim.g.vscode
+    end,
+}
+
+add_plugin {
+    "saghen/blink.cmp",
+    name = "blink-cmp",
+    dependencies = {
+        luasnip,
+    },
+    version = "1.*",
     cond = function()
         return not vim.g.vscode
     end,

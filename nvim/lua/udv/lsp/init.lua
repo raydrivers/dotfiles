@@ -26,9 +26,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
 
-        if client and client.supports_method("textDocument/completion") then
-            vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
-        end
 
         local opts = { buffer = bufnr }
 

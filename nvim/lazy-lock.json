@@ -1,11 +1,12 @@
 {
   "base16-nvim": { "branch": "master", "commit": "e05bcb99951d8ae4ecbf4ae053922fd2be6263a5" },
+  "blink-cmp": { "branch": "main", "commit": "b19413d214068f316c78978b08264ed1c41830ec" },
   "flash": { "branch": "main", "commit": "fcea7ff883235d9024dc41e638f164a450c14ca2" },
   "gitsigns": { "branch": "main", "commit": "5813e4878748805f1518cee7abb50fd7205a3a48" },
   "harpoon": { "branch": "harpoon2", "commit": "87b1a3506211538f460786c23f98ec63ad9af4e5" },
   "lazy.nvim": { "branch": "main", "commit": "85c7ff3711b730b4030d03144f6db6375044ae82" },
   "lualine": { "branch": "master", "commit": "47f91c416daef12db467145e16bed5bbfe00add8" },
-  "luasnip": { "branch": "master", "commit": "03c8e67eb7293c404845b3982db895d59c0d1538" },
+  "luasnip": { "branch": "master", "commit": "3732756842a2f7e0e76a7b0487e9692072857277" },
   "lush.nvim": { "branch": "main", "commit": "9c60ec2279d62487d942ce095e49006af28eed6e" },
   "mellifluous.nvim": { "branch": "main", "commit": "4ce6258b31420aa4fd64b35b7f7cf42dffef7403" },
   "mini.nvim": { "branch": "main", "commit": "94cae4660a8b2d95dbbd56e1fbc6fcfa2716d152" },
@@ -17,6 +18,6 @@
   "telescope": { "branch": "master", "commit": "a0bbec21143c7bc5f8bb02e0005fa0b982edc026" },
   "telescope-fzf-native": { "branch": "main", "commit": "6fea601bd2b694c6f2ae08a6c6fab14930c60e2c" },
   "telescope-ui-select": { "branch": "master", "commit": "6e51d7da30bd139a6950adf2a47fda6df9fa06d2" },
-  "treesitter": { "branch": "master", "commit": "42fc28ba918343ebfd5565147a42a26580579482" },
+  "treesitter": { "branch": "main", "commit": "42fc28ba918343ebfd5565147a42a26580579482" },
   "vim-devicons": { "branch": "master", "commit": "71f239af28b7214eebb60d4ea5bd040291fb7e33" }
 }
