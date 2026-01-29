@@ -12,11 +12,33 @@ require('blink.cmp').setup({
         },
         menu = {
             border = "rounded",
+            max_height = 10,
             draw = {
                 gap = 2,
-                columns = { { "kind_icon", "label", gap = 1 }, { "kind" } },
+                padding = 1,
+                columns = { { "kind_icon", "label", gap = 1 }, { "kind", "source_name" } },
             },
         },
+        -- Accept behavior
+        accept = {
+            create_undo_point = true,
+            auto_brackets = {
+                enabled = true,
+                default_brackets = { "(", ")" },
+                override_brackets_for_filetypes = {
+                    lua = { "{", "}" },
+                },
+                semantic_token_resolution = {
+                    enabled = true,
+                    timeout_ms = 400,
+                },
+            },
+        },
+    },
+
+    -- Simplified fuzzy matching
+    fuzzy = {
+        sorts = { "label", "kind", "score" },
     },
 
     -- Disable signature help to use builtin LSP signature help
@@ -24,9 +46,27 @@ require('blink.cmp').setup({
         enabled = false,
     },
 
-    -- Sources configuration
+    -- Sources configuration with priorities
     sources = {
         default = { "lsp", "path", "snippets", "buffer" },
+        providers = {
+            snippets = {
+                score_offset = 100, -- Highest priority for snippets
+            },
+            lsp = {
+                score_offset = 50,
+            },
+            path = {
+                score_offset = 10,
+                opts = {
+                    trailing_slash = false,
+                    label_trailing_slash = true,
+                },
+            },
+            buffer = {
+                score_offset = 5,
+            },
+        },
     },
 
     -- Keymap configuration
@@ -48,11 +88,4 @@ require('blink.cmp').setup({
         preset = "luasnip",
     },
 
-    -- Appearance and behavior
-    accept = {
-        create_undo_point = false,
-        auto_brackets = {
-            enabled = true,
-        },
-    },
 })

@@ -14,9 +14,6 @@ local ignored = make_ignore_map({
     "TelescopePrompt",
     "TelescopePromptBorder",
     "TelescopeResults",
-    "dashboard",
-    "neo-tree",
-    "neo-tree-popup",
     "notify",
 })
 

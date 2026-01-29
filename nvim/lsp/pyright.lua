@@ -20,8 +20,10 @@ return {
         },
     },
     root_dir = function(fname)
-        return vim.fs.find({
-            "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git"
-        }, {upward = true, path = fname})[1]
+        local found = vim.fs.find({
+            "pyproject.toml", "setup.py", "setup.cfg",
+            "requirements.txt", ".git",
+        }, { upward = true, path = fname })[1]
+        return found and vim.fs.dirname(found)
     end,
 }

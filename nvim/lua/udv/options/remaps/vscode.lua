@@ -1,7 +1,3 @@
-if not vim.g.vscode then
-    return
-end
-
 local vscode = require('vscode-neovim')
 
 -- File operations
@@ -21,7 +17,7 @@ vim.keymap.set('n', '<leader>fs', function()
     vscode.call('workbench.action.gotoSymbol')
 end, { desc = "Find - Symbols" })
 
-vim.keymap.set('n', '<leader>fs', function()
+vim.keymap.set('n', '<leader>fS', function()
     vscode.call('workbench.action.showAllSymbols')
 end, { desc = "Find - Workspace Symbols" })
 

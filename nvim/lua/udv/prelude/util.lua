@@ -1,18 +1,9 @@
-function get_module_paths(name)
-    local paths = {}
-    for path in package.path:gmatch("[^;]+") do
-        path = path:gsub("?", name:gsub("%.", "/"))
-        table.insert(paths, path)
-    end
-    return paths
-end
-
-function is_module_available(name)
+local function is_module_available(name)
     if package.loaded[name] then
         return true
     end
 
-    local searchers = package.searchers or package.loaders
+    local searchers = package.searchers
     if not searchers then
         return false
     end
@@ -27,7 +18,7 @@ function is_module_available(name)
     return false
 end
 
-function format_load_error(name, err)
+local function format_load_error(name, err)
     local lines = {
         "\nModule load error: " .. name,
         "Error: " .. tostring(err),
@@ -48,26 +39,20 @@ function format_load_error(name, err)
 end
 
 
-function safe_require(name)
-    if is_module_available(name) then
-        local ok, result = pcall(require, name)
-        if ok then
-            return result
-        else
-            error(format_load_error(name, result))
-        end
+local function safe_require(name)
+    if not is_module_available(name) then
+        return nil
     end
 
-    local init_name = name .. ".init"
-    if is_module_available(init_name) then
-        local ok, result = pcall(require, init_name)
-        if ok then
-            return result
-        else
-            error(format_load_error(init_name, result))
-        end
+    local ok, result = pcall(require, name)
+    if ok then
+        return result
     end
 
-    return nil
+    error(format_load_error(name, result))
 end
+
+return {
+    safe_require = safe_require,
+}
 

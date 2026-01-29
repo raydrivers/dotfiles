@@ -6,7 +6,7 @@ local BuildModule = {}
 --- Add a generic build target
 ---@param params table Parameters to define a generic build target
 function BuildModule.add_target(params)
-    log.trace(string.format("Adding target %s", dir))
+    log.trace(string.format("Adding target %s", params.name or "unknown"))
     manager:add_target(params)
 end
 
@@ -47,7 +47,7 @@ function BuildModule.setup()
     vim.api.nvim_create_user_command("Build", function(opts)
         local config = opts.fargs[1]
         local target = opts.fargs[2]
-        manager.build_target(config, target)
+        manager:build_target(target, config)
     end, {
         nargs = "*",
         complete = function(_, line)

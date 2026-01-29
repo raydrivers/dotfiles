@@ -1,7 +1,7 @@
 local Path = require('plenary.path')
 
--- TODO: build part is disabled for now
--- local build = require("pcfg.build")
+local build = require("pcfg.build")
+local snippets = require("pcfg.snippets")
 local paths = require("pcfg.paths")
 local log = require("pcfg.log")
 
@@ -27,7 +27,8 @@ end
 local function on_project_loaded(project_root)
     log.debug(string.format("Project %s loaded, setting up", project_root))
 
-    -- build.load_targets(project_root)
+    build.load_targets(project_root)
+    snippets.load_project_snippets(project_root)
 end
 
 function Pcfg.load_project_config()
@@ -52,7 +53,8 @@ end
 
 function Pcfg.setup()
     log.trace("Initializing pcfg plugin")
-    -- build.setup()
+    build.setup()
+    snippets.setup()
 
     log.debug("Setting up VimEnter autocmd for project config loading")
     vim.api.nvim_create_autocmd("VimEnter", {

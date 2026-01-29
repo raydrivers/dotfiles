@@ -1,5 +1,59 @@
 local lualine = require("lualine")
 
+local trailing_ws = {}
+local harpoon_index = {}
+
+local function check_trailing_ws(buf)
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    for _, line in ipairs(lines) do
+        if line:match("%s$") then
+            trailing_ws[buf] = true
+            return
+        end
+    end
+    trailing_ws[buf] = false
+end
+
+local function check_harpoon(buf)
+    local ok, harpoon = pcall(require, "harpoon")
+    if not ok then
+        return
+    end
+
+    local filepath = vim.api.nvim_buf_get_name(buf)
+    if filepath == "" then
+        harpoon_index[buf] = nil
+        return
+    end
+
+    local list = harpoon:list()
+    for i = 1, list:length() do
+        local item = list:get(i)
+        if item and item.value
+            and vim.fn.fnamemodify(item.value, ":p") == filepath
+        then
+            harpoon_index[buf] = i
+            return
+        end
+    end
+    harpoon_index[buf] = nil
+end
+
+vim.api.nvim_create_autocmd(
+    { "TextChanged", "InsertLeave", "BufEnter" },
+    { callback = function(ev) check_trailing_ws(ev.buf) end }
+)
+
+vim.api.nvim_create_autocmd("BufEnter", {
+    callback = function(ev) check_harpoon(ev.buf) end,
+})
+
+vim.api.nvim_create_autocmd("BufDelete", {
+    callback = function(ev)
+        trailing_ws[ev.buf] = nil
+        harpoon_index[ev.buf] = nil
+    end,
+})
 
 local conditions = {
     buffer_not_empty = function()
@@ -17,10 +71,7 @@ local conditions = {
 
 local config = {
     options = {
-        disabled_filetypes = {
-            "neo-tree",
-            "dashboard",
-        },
+        disabled_filetypes = {},
         component_separators = '',
         section_separators = '',
         theme = "auto",
@@ -136,30 +187,16 @@ ins_right {
 
 ins_right_main {
     function()
+        local buf = vim.api.nvim_get_current_buf()
         local indicators = {}
 
-        -- Harpoon indicator
-        local harpoon = require("harpoon")
-        local current_file = vim.fn.expand("%:p")
-
-        if current_file ~= "" then
-            local list = harpoon:list()
-            for i = 1, list:length() do
-                local item = list:get(i)
-                if item and item.value and vim.fn.fnamemodify(item.value, ":p") == current_file then
-                    table.insert(indicators, "♆ " .. i)
-                    break
-                end
-            end
+        local idx = harpoon_index[buf]
+        if idx then
+            table.insert(indicators, "♆ " .. idx)
         end
 
-        -- Trailing whitespace indicator
-        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-        for _, line in ipairs(lines) do
-            if line:match("%s$") then
-                table.insert(indicators, "⚐")
-                break
-            end
+        if trailing_ws[buf] then
+            table.insert(indicators, "⚐")
         end
 
         return table.concat(indicators, " ")
