@@ -77,15 +77,14 @@ local config = {
         theme = "auto",
     },
     sections = {
-        lualine_a = {}, -- Mode section
-        lualine_b = {}, -- File info section
-        lualine_c = {}, -- Main Left section
-        lualine_x = {}, -- Main right section
-        lualine_y = {}, -- Info section
-        lualine_z = {}, -- Status section
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = {},
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
     },
     inactive_sections = {
-        -- Reset defaults
         lualine_a = {},
         lualine_b = {},
         lualine_y = {},
@@ -208,4 +207,3 @@ set_status {
 }
 
 lualine.setup(config)
-
