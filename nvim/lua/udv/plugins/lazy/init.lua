@@ -1,7 +1,6 @@
-require("udv.prelude.util")
+local safe_require = require("udv.prelude.util").safe_require
 
 local LOAD_FIRST_PRIORITY = 1000
-local LOAD_EARLY_PRIORITY = 100
 
 local CONFIG_DIR = vim.fn.stdpath("config")
 local THEMES_CONFIG_DIR = CONFIG_DIR .. "/themes"
@@ -20,12 +19,10 @@ local function add_plugin(plugin_info)
         return nil
     end
 
-    local plugin_opts_module = plugin_config_module_name("opts", plugin_info)
     local plugin_init_module = plugin_config_module_name("init", plugin_info)
     local plugin_config_module = plugin_config_module_name("config", plugin_info)
 
     local plugin_generated = {
-        opts = safe_require(plugin_opts_module), -- FIXME: this doesn't work for some reason
         config = function()
             safe_require(plugin_config_module)
         end,
@@ -46,7 +43,6 @@ local function add_local_plugin(plugin_info)
 
     if vim.fn.isdirectory(plugin_dir) == 0 then
         error("Local plugin directory not found: " .. plugin_dir)
-        return
     end
 
     local plugin_generated = {
@@ -82,10 +78,6 @@ local mini_plugin = {
 
 local vim_devicons_plugin = {
     "ryanoasis/vim-devicons",
-}
-
-local nui_plugin = {
-    "MunifTanjim/nui.nvim",
 }
 
 ---- Local plugins
@@ -138,20 +130,6 @@ add_plugin {
 
 ---- Core plugins
 add_plugin {
-    "folke/which-key.nvim",
-    disabled = true,
-    name = "whichkey",
-    event = "VeryLazy",
-    dependencies = {
-        nvim_web_devicons_plugin,
-        mini_plugin,
-    },
-    cond = function()
-        return not vim.g.vscode
-    end,
-}
-
-add_plugin {
     "ThePrimeagen/harpoon",
     name = "harpoon",
     branch = "harpoon2",
@@ -166,7 +144,10 @@ add_plugin {
     event = "VeryLazy",
 }
 
-local treesitter_extension_textobjects = {"nvim-treesitter/nvim-treesitter-textobjects"}
+local treesitter_extension_textobjects = {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+}
 local treesitter = add_plugin {
     "nvim-treesitter/nvim-treesitter",
     name = "treesitter",
@@ -236,10 +217,10 @@ local lazydev_plugin = {
     },
 }
 
-add_plugin {
+local luasnip = add_plugin {
     "L3MON4D3/LuaSnip",
     name = "luasnip",
-    run = "make install jsregexp"
+    build = "make install_jsregexp"
 }
 
 add_plugin {
@@ -259,6 +240,7 @@ add_plugin {
     name = "blink-cmp",
     dependencies = {
         luasnip,
+        lazydev_plugin,
     },
     version = "1.*",
     cond = function()
@@ -269,6 +251,14 @@ add_plugin {
 add_plugin {
     "lewis6991/gitsigns.nvim",
     name = "gitsigns",
+}
+
+add_plugin {
+    "rmagatti/auto-session",
+    name = "auto-session",
+    cond = function()
+        return not vim.g.vscode
+    end,
 }
 
 return plugins

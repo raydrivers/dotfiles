@@ -6,7 +6,6 @@ return {
         "--background-index",
         "--clang-tidy",
         "--enable-config",
-        "--cross-file-rename",
         "--all-scopes-completion",
         "--header-insertion=iwyu",
         "--completion-style=bundled"

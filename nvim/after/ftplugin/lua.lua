@@ -1,3 +1,3 @@
-vim.api.nvim_buf_set_keymap(0, "n", "<leader>x", "<cmd>.lua<CR>", { desc = "Execute current line" })
-vim.api.nvim_buf_set_keymap(0, "n", "<leader><leader>x", "<cmd>source %<CR>", { desc = "Execute current file" })
+vim.keymap.set("n", "<leader>x", "<cmd>.lua<CR>", { buffer = 0, desc = "Execute current line" })
+vim.keymap.set("n", "<leader><leader>x", "<cmd>source %<CR>", { buffer = 0, desc = "Execute current file" })
 

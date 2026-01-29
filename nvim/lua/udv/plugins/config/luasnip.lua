@@ -1,60 +1,32 @@
-local luasnip = require("luasnip");
+local luasnip = require("luasnip")
+local luasnip_util_types = require("luasnip.util.types")
+local luasnip_loaders_from_lua = require("luasnip.loaders.from_lua")
+
+local snippets_directory_path = vim.fn.stdpath("config") .. "/lua/snippets"
+local extension_base_priority = 300
+local extension_priority_increase = 1
 
 luasnip.config.set_config {
-    history = false,
+    history = true,
     updateevents = "TextChanged,TextChangedI",
-    -- Show ALL snippet nodes simultaneously for full context
-    ext_base_prio = 300,
-    ext_prio_increase = 1,
+    ext_base_prio = extension_base_priority,
+    ext_prio_increase = extension_priority_increase,
     ext_opts = {
-        [require("luasnip.util.types").insertNode] = {
+        [luasnip_util_types.insertNode] = {
             active = {
-                -- Blue background with bold text for CURRENT active tabstop
                 hl_group = "LuaSnipActiveTabstop",
-                virt_text = { { " ACTIVE ", "LuaSnipActiveVirtText" } },
-                virt_text_pos = "right_align",
-            },
-            passive = {
-                -- Highlight ALL linked instances of the same variable
-                hl_group = "LuaSnipLinkedTabstop",
-                virt_text = { { " LINKED ", "LuaSnipLinkedVirtText" } },
-                virt_text_pos = "right_align",
-            },
-            unvisited = {
-                -- Orange background for unvisited tabstops (ALWAYS visible)
-                hl_group = "LuaSnipUnvisitedTabstop",
-            },
-            visited = {
-                -- Green background for visited tabstops (ALWAYS visible)
-                hl_group = "LuaSnipVisitedTabstop",
             },
         },
-        [require("luasnip.util.types").choiceNode] = {
+        [luasnip_util_types.choiceNode] = {
             active = {
-                -- Purple background for choice nodes
                 hl_group = "LuaSnipChoiceTabstop",
-                virt_text = { { " CHOICE ", "LuaSnipChoiceVirtText" } },
-                virt_text_pos = "right_align",
-            },
-            unvisited = {
-                hl_group = "LuaSnipChoiceTabstop",
-            },
-        },
-        [require("luasnip.util.types").exitNode] = {
-            unvisited = {
-                -- Mark the exit point of snippet
-                hl_group = "LuaSnipExitNode",
-                virt_text = { { " EXIT ", "LuaSnipExitVirtText" } },
-                virt_text_pos = "eol",
             },
         },
     },
-    -- Enhanced region checking to show snippet boundaries
     region_check_events = "CursorMoved,CursorMovedI",
     delete_check_events = "TextChanged,InsertLeave",
 }
 
--- Define custom highlight groups for IDE-like appearance
 vim.api.nvim_set_hl(0, "LuaSnipActiveTabstop", {
     bg = "#3b4261",
     fg = "#ffffff",
@@ -81,7 +53,6 @@ vim.api.nvim_set_hl(0, "LuaSnipExitNode", {
     fg = "#8080ff"
 })
 
--- Virtual text indicators
 vim.api.nvim_set_hl(0, "LuaSnipActiveVirtText", {
     fg = "#7eb3ff",
     bold = true
@@ -95,17 +66,12 @@ vim.api.nvim_set_hl(0, "LuaSnipExitVirtText", {
     bold = true
 })
 
--- Load snippets from lua/snippets directory
-require("luasnip.loaders.from_lua").load({paths = vim.fn.stdpath("config") .. "/lua/snippets"})
+luasnip_loaders_from_lua.load({paths = snippets_directory_path})
 
--- Integrate snippets with built-in completion
 vim.api.nvim_create_autocmd("CompleteDone", {
     callback = function()
         local completed_item = vim.v.completed_item
-        -- Check if completed item is a snippet
         if completed_item and completed_item.menu and completed_item.menu:match("%[Snippet%]") then
-            -- Try to expand the snippet
-            local luasnip = require("luasnip")
             if luasnip.expandable() then
                 luasnip.expand()
             end
@@ -113,46 +79,55 @@ vim.api.nvim_create_autocmd("CompleteDone", {
     end,
 })
 
--- Manual trigger for testing
 vim.keymap.set("i", "<C-Space>", function()
     if luasnip.expandable() then
         luasnip.expand()
     end
 end, { silent = true })
 
--- Debug function to check available snippets
 vim.keymap.set("n", "<leader>ds", function()
-    local available = luasnip.available()
-    print("Available snippets for " .. vim.bo.filetype .. ":")
-    for trigger, _ in pairs(available[vim.bo.filetype] or {}) do
-        print("  " .. trigger)
+    local available_snippets = luasnip.available()
+    local current_filetype = vim.bo.filetype
+    local lines = { "Available snippets for " .. current_filetype .. ":" }
+    for trigger, _ in pairs(available_snippets[current_filetype] or {}) do
+        table.insert(lines, "  " .. trigger)
     end
+    vim.notify(table.concat(lines, "\n"))
 end, { desc = "Debug: Show available snippets" })
 
-vim.keymap.set({ "i", "s", }, "<C-k>", function()
+vim.keymap.set("n", "<leader>rs", function()
+    luasnip_loaders_from_lua.load({paths = snippets_directory_path})
+    vim.notify("Snippets reloaded")
+end, { desc = "Reload snippets" })
+
+local modes = { "i", "s" }
+
+vim.keymap.set(modes, "<C-k>", function()
     if luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
     end
-end, { silent = true, })
+end, { silent = true })
 
-vim.keymap.set({ "i", "s", }, "<C-j>", function()
+vim.keymap.set(modes, "<C-j>", function()
     if luasnip.jumpable(-1) then
         luasnip.jump(-1)
     end
-end, { silent = true, })
+end, { silent = true })
 
--- Escape/cancel snippet
-vim.keymap.set({ "i", "s" }, "<Esc>", function()
+vim.keymap.set(modes, "<C-l>", function()
+    if luasnip.choice_active() then
+        luasnip.change_choice(1)
+    end
+end)
+
+vim.keymap.set(modes, "<Esc>", function()
     if luasnip.in_snippet() then
         luasnip.unlink_current()
-        return "<Esc>"
-    else
-        return "<Esc>"
     end
+    return "<Esc>"
 end, { expr = true, silent = true })
 
--- Alternative cancel with Ctrl+C
-vim.keymap.set({ "i", "s" }, "<C-c>", function()
+vim.keymap.set(modes, "<C-c>", function()
     if luasnip.in_snippet() then
         luasnip.unlink_current()
     end

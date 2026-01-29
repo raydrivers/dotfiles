@@ -1,33 +1,29 @@
--- Diff mode configuration
-
--- Enhanced diff options
 vim.opt.diffopt:append({
-    "algorithm:patience",  -- Better diff algorithm
-    "indent-heuristic",    -- Better indentation handling
-    "linematch:60",       -- Line matching for word-level diffs (nvim 0.9+)
+    "algorithm:patience",
+    "indent-heuristic",
+    "linematch:60",
 })
 
+local function setup_diff_keymaps()
+    local opts = { buffer = true }
+    vim.keymap.set("n", "<leader>dg", ":diffget<CR>", opts)
+    vim.keymap.set("n", "<leader>dp", ":diffput<CR>", opts)
+    vim.keymap.set("n", "<leader>du", ":diffupdate<CR>", opts)
+    vim.keymap.set("n", "gh", "[c", opts)
+    vim.keymap.set("n", "gl", "]c", opts)
+end
 
--- Diff mode keymaps (only active in diff mode)
-vim.api.nvim_create_autocmd("FilterWritePre", {
+vim.api.nvim_create_autocmd("OptionSet", {
+    pattern = "diff",
     callback = function()
         if vim.wo.diff then
-            -- Enhanced navigation
-            vim.keymap.set("n", "<leader>dg", ":diffget<CR>", {buffer = true, desc = "Diff get"})
-            vim.keymap.set("n", "<leader>dp", ":diffput<CR>", {buffer = true, desc = "Diff put"})
-            vim.keymap.set("n", "<leader>du", ":diffupdate<CR>", {buffer = true, desc = "Diff update"})
-
-            -- Quick navigation
-            vim.keymap.set("n", "gh", "[c", {buffer = true, desc = "Previous diff"})
-            vim.keymap.set("n", "gl", "]c", {buffer = true, desc = "Next diff"})
+            setup_diff_keymaps()
         end
-    end
+    end,
 })
 
-
--- Auto-enable diff when opening with nvim -d
 if vim.wo.diff then
-    -- Start in diff mode settings
+    setup_diff_keymaps()
     vim.wo.wrap = false
     vim.wo.scrollbind = true
     vim.wo.cursorbind = true

@@ -30,10 +30,6 @@ set splitright
 set nowrap
 set scrolloff=16
 
-" Completion
-set completeopt=menu,menuone,noselect
-set shortmess+=c
-
 " Visual-Block mode
 set virtualedit=block
 

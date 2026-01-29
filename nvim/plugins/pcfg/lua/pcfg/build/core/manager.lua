@@ -54,7 +54,7 @@ function Manager:enable_tool(tool_name, opts)
     end
 
     log.trace(string.format("Registering tool %s: %s", tool_name, tool_module_name))
-    table.insert(self.tools, tbl.freeze(tool))
+    self.tools[tool_name] = tbl.freeze(tool)
 
     local loader_ok, loader = pcall(require, tool_module_name .. ".loader")
     if loader_ok then
