@@ -1,23 +1,3 @@
-local function is_module_available(name)
-    if package.loaded[name] then
-        return true
-    end
-
-    local searchers = package.searchers
-    if not searchers then
-        return false
-    end
-
-    for _, searcher in ipairs(searchers) do
-        local success, loader = pcall(searcher, name)
-        if success and type(loader) == "function" then
-            return true
-        end
-    end
-
-    return false
-end
-
 local function format_load_error(name, err)
     local lines = {
         "\nModule load error: " .. name,
@@ -25,7 +5,7 @@ local function format_load_error(name, err)
         "\nSearch paths:"
     }
 
-    local normalized_name = name:gsub("%.", package.config:sub(1, 1)) -- Get platform-specific separator
+    local normalized_name = name:gsub("%.", package.config:sub(1, 1))
 
     for path in package.path:gmatch("[^;]+") do
         local formatted_path = path:gsub("?", normalized_name)
@@ -40,13 +20,13 @@ end
 
 
 local function safe_require(name)
-    if not is_module_available(name) then
-        return nil
-    end
-
     local ok, result = pcall(require, name)
     if ok then
         return result
+    end
+
+    if result:match("module .* not found") then
+        return nil
     end
 
     error(format_load_error(name, result))

@@ -68,23 +68,6 @@ vim.api.nvim_set_hl(0, "LuaSnipExitVirtText", {
 
 luasnip_loaders_from_lua.load({paths = snippets_directory_path})
 
-vim.api.nvim_create_autocmd("CompleteDone", {
-    callback = function()
-        local completed_item = vim.v.completed_item
-        if completed_item and completed_item.menu and completed_item.menu:match("%[Snippet%]") then
-            if luasnip.expandable() then
-                luasnip.expand()
-            end
-        end
-    end,
-})
-
-vim.keymap.set("i", "<C-Space>", function()
-    if luasnip.expandable() then
-        luasnip.expand()
-    end
-end, { silent = true })
-
 vim.keymap.set("n", "<leader>ds", function()
     local available_snippets = luasnip.available()
     local current_filetype = vim.bo.filetype
@@ -101,18 +84,6 @@ vim.keymap.set("n", "<leader>rs", function()
 end, { desc = "Reload snippets" })
 
 local modes = { "i", "s" }
-
-vim.keymap.set(modes, "<C-k>", function()
-    if luasnip.expand_or_jumpable() then
-        luasnip.expand_or_jump()
-    end
-end, { silent = true })
-
-vim.keymap.set(modes, "<C-j>", function()
-    if luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-    end
-end, { silent = true })
 
 vim.keymap.set(modes, "<C-l>", function()
     if luasnip.choice_active() then
