@@ -1,0 +1,19 @@
+[diff]
+    tool = nvim
+    colorMoved = default
+
+[difftool "nvim"]
+    cmd = nvim -d "$LOCAL" "$REMOTE"
+
+[difftool]
+    prompt = false
+
+[merge]
+    tool = nvim
+    conflictStyle = zdiff3
+
+[mergetool "nvim"]
+    cmd = nvim -d "$LOCAL" "$BASE" "$REMOTE" "$MERGED" -c "$wincmd w" -c "$wincmd J"
+
+[mergetool]
+    keepBackup = false

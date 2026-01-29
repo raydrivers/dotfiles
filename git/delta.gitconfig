@@ -1,0 +1,14 @@
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    features = mellow-barbet
+    side-by-side = false
+
+# themes.gitconfig is downloaded by setup.sh from delta repo
+[include]
+    path = ~/.config/git/themes.gitconfig

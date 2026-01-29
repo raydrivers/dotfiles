@@ -1,0 +1,8 @@
+# Paths rely on setup.sh symlinking this dir to ~/.config/git/custom
+[init]
+    defaultBranch = main
+
+[include]
+    path = ~/.config/git/custom/aliases.gitconfig
+    path = ~/.config/git/custom/delta.gitconfig
+    path = ~/.config/git/custom/tools.gitconfig

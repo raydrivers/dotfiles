@@ -35,13 +35,16 @@ create_link() {
     echo -e "${GREEN}${NC} Linked $source -> $target"
 }
 
-# Git configuration
-echo -e "\n${GREEN}Setting up Git configuration...${NC}"
-create_link "$DOTFILES_DIR/git/aliases.gitconfig" "$HOME/.config/git/aliases.gitconfig"
-
-# Git helper scripts
-echo -e "\n${GREEN}Setting up Git helper scripts...${NC}"
-mkdir -p "$HOME/.local/bin"
+# Git configuration + delta
+echo -e "\n${GREEN}Setting up Git...${NC}"
+mkdir -p "$HOME/.config/git" "$HOME/.local/bin"
+create_link "$DOTFILES_DIR/git" "$HOME/.config/git/custom"
+git config --global --get-all include.path | grep -q "custom/common" \
+    || git config --global --add include.path "~/.config/git/custom/common.gitconfig"
+[[ -f "$HOME/.config/git/themes.gitconfig" ]] \
+    || curl -sLo "$HOME/.config/git/themes.gitconfig" \
+        "https://raw.githubusercontent.com/dandavison/delta/main/themes.gitconfig"
+command -v delta &>/dev/null || "$DOTFILES_DIR/git/install-delta.sh"
 create_link "$DOTFILES_DIR/git/git-last" "$HOME/.local/bin/git-last"
 create_link "$DOTFILES_DIR/git/git-unpushed" "$HOME/.local/bin/git-unpushed"
 create_link "$DOTFILES_DIR/git/git-rebase-unpushed" "$HOME/.local/bin/git-rebase-unpushed"
