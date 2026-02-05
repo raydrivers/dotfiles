@@ -27,6 +27,14 @@ export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
 export HOMEBREW_NO_ENV_HINTS=1
 
+brew() {
+    if command -v screw &>/dev/null; then
+        screw "$@"
+    else
+        command brew "$@"
+    fi
+}
+
 # Conditional includes
 [ -f /nix/var/nix/profiles/default/etc/profile.d/nix.sh ] && source /nix/var/nix/profiles/default/etc/profile.d/nix.sh
 [ -f ~/.posix-profile ] && source ~/.posix-profile
