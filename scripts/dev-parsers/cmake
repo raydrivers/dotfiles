@@ -1,0 +1,26 @@
+#!/usr/bin/awk -f
+# Parse CMake errors/warnings: "CMake Error/Warning at file:line (func):" + message on next line
+
+function parse_cmake(prefix) {
+    str = $0
+    sub("^" prefix " at ", "", str)
+    sub(/ \(.*/, "", str)
+
+    n = split(str, parts, ":")
+    file = parts[1]
+    for (i = 2; i < n; i++) file = file ":" parts[i]
+    line = parts[n]
+
+    getline msg
+    gsub(/^[[:space:]]+/, "", msg)
+
+    print DIR "/" file ":" line ":1: " msg
+}
+
+/^CMake Error at / {
+    parse_cmake("CMake Error")
+}
+
+WARN && /^CMake Warning at / {
+    parse_cmake("CMake Warning")
+}

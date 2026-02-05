@@ -1,0 +1,29 @@
+#!/bin/bash
+TEMPLATES_DIR="$DOTFILES_DIR/scripts/dev-templates"
+
+git_exclude() {
+    local exclude=".git/info/exclude"
+    [[ -d .git ]] || return
+    grep -qxF "$1" "$exclude" 2>/dev/null || echo "$1" >> "$exclude"
+}
+
+git_exclude "dev"
+git_exclude ".dev.log"
+git_exclude ".dev.log.qf"
+git_exclude "_build"
+
+if [[ -e dev ]]; then
+    echo "./dev already exists"
+    exit 0
+fi
+
+template="${1:-cmake}"
+if [[ ! -f "$TEMPLATES_DIR/$template" ]]; then
+    echo "Unknown template: $template"
+    echo "Available: $(ls "$TEMPLATES_DIR" | tr '\n' ' ')"
+    exit 1
+fi
+
+cp "$TEMPLATES_DIR/$template" ./dev
+chmod +x ./dev
+nvim dev
