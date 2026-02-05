@@ -179,7 +179,7 @@ local telescope_extension_fzf_native = add_plugin {
 add_plugin {
     "nvim-telescope/telescope.nvim",
     name = "telescope",
-    tag = "0.1.8",
+    branch = "master",
     dependencies = {
         telescope_extension_ui_select,
         telescope_extension_fzf_native,

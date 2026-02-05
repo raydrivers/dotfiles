@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Print "file line" from first quickfix entry, handling Windows drive letters (C:\...)
+extract_qf_location() {
+    awk -F: 'NR==1{
+        if ($1 ~ /^[A-Za-z]$/) print $1":"$2, $3; else print $1, $2
+    }' "$1"
+}
+
+LOGFILE=".dev.log"
+WARN_FLAG=""
+
+while getopts "w" opt; do
+    case $opt in
+        w) WARN_FLAG="-w" ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+for script in ./dev ./dev.sh ./.dev; do
+    if [[ -x "$script" ]]; then
+        "$script" "$@" 2>&1 | tee "$LOGFILE"
+        exit_code=${PIPESTATUS[0]}
+
+        if [[ $exit_code -ne 0 ]]; then
+            dev-parse $WARN_FLAG "$LOGFILE" > "$LOGFILE.qf"
+            if [[ -s "$LOGFILE.qf" ]]; then
+                echo ""
+                echo "Failed with exit code $exit_code. Opening editor..."
+                read -r first_file first_line < <(extract_qf_location "$LOGFILE.qf")
+                nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
+            fi
+        fi
+        exit $exit_code
+    fi
+done
+
+echo "No dev script found (tried: ./dev, ./dev.sh, ./.dev)"
+exit 1

@@ -1,0 +1,31 @@
+#!/usr/bin/awk -f
+# Parse MSVC errors/warnings: file(line,col): error/warning CNNNN: message [project.vcxproj]
+
+function parse_msvc() {
+    str = $0
+    sub(/ \[.*\]$/, "", str)
+
+    paren = index(str, "(")
+    file = substr(str, 1, paren - 1)
+
+    rest = substr(str, paren + 1)
+    close_paren = index(rest, ")")
+    loc = substr(rest, 1, close_paren - 1)
+
+    n = split(loc, parts, ",")
+    line = parts[1] + 0
+    col = (n > 1) ? parts[2] + 0 : 0
+
+    msg = substr(rest, close_paren + 1)
+    sub(/^: /, "", msg)
+
+    emit(file, line, col, msg)
+}
+
+/^[A-Za-z]:[^(]+\([0-9]+(,[0-9]+)?\): error/ {
+    parse_msvc()
+}
+
+WARN && /^[A-Za-z]:[^(]+\([0-9]+(,[0-9]+)?\): warning/ {
+    parse_msvc()
+}

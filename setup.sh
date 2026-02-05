@@ -14,6 +14,9 @@ NC='\033[0m' # No Color
 # Get the directory where this script is located
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Enable real symlinks on Windows (MSYS/Git Bash defaults to copies)
+[[ "$ENV_TYPE" == "windows" ]] && export MSYS=winsymlinks:nativestrict
+
 echo -e "${GREEN}Setting up dotfiles from ${DOTFILES_DIR}${NC}"
 
 # Function to create symlink with backup
@@ -59,6 +62,9 @@ create_link "$DOTFILES_DIR/scripts/starship-change" "$HOME/.local/bin/starship-c
 create_link "$DOTFILES_DIR/scripts/clean-config-backups" "$HOME/.local/bin/clean-config-backups"
 create_link "$DOTFILES_DIR/scripts/screw" "$HOME/.local/bin/screw"
 create_link "$DOTFILES_DIR/scripts/brew-install" "$HOME/.local/bin/brew-install"
+create_link "$DOTFILES_DIR/scripts/dev" "$HOME/.local/bin/dev"
+create_link "$DOTFILES_DIR/scripts/dev-parse" "$HOME/.local/bin/dev-parse"
+create_link "$DOTFILES_DIR/scripts/dev-init" "$HOME/.local/bin/dev-init"
 
 # Kitty terminal configuration
 echo -e "\n${GREEN}Setting up Kitty configuration...${NC}"
