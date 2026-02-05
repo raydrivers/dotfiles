@@ -1,0 +1,41 @@
+#!/bin/bash
+LOGFILE=".dev.log"
+INCLUDE_WARNINGS=false
+
+while getopts "w" opt; do
+    case $opt in
+        w) INCLUDE_WARNINGS=true ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+extract_issues() {
+    local dir="$(pwd)"
+    local parsers="$DOTFILES_DIR/scripts/dev-parsers"
+    local warn=$($INCLUDE_WARNINGS && echo 1 || echo 0)
+
+    parse() { awk -v DIR="$dir" -v WARN="$warn" -f "$parsers/$1" "$2"; }
+
+    parse compiler "$1"
+    parse cmake "$1"
+}
+
+for script in ./dev ./dev.sh ./.dev; do
+    if [[ -x "$script" ]]; then
+        "$script" "$@" 2>&1 | tee "$LOGFILE"
+        exit_code=${PIPESTATUS[0]}
+
+        if [[ $exit_code -ne 0 ]]; then
+            echo ""
+            echo "Failed with exit code $exit_code. Opening editor for resolution..."
+            extract_issues "$LOGFILE" > "$LOGFILE.qf"
+            first_file=$(head -1 "$LOGFILE.qf" | cut -d: -f1)
+            first_line=$(head -1 "$LOGFILE.qf" | cut -d: -f2)
+            nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
+        fi
+        exit $exit_code
+    fi
+done
+
+echo "No dev script found (tried: ./dev, ./dev.sh, ./.dev)"
+exit 1

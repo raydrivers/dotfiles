@@ -21,6 +21,7 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=nvim
+export DOTFILES_DIR="$HOME/dotfiles"
 
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_INSTALL_CLEANUP=1

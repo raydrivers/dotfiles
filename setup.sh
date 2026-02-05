@@ -59,6 +59,8 @@ create_link "$DOTFILES_DIR/scripts/starship-change" "$HOME/.local/bin/starship-c
 create_link "$DOTFILES_DIR/scripts/clean-config-backups" "$HOME/.local/bin/clean-config-backups"
 create_link "$DOTFILES_DIR/scripts/screw" "$HOME/.local/bin/screw"
 create_link "$DOTFILES_DIR/scripts/brew-install" "$HOME/.local/bin/brew-install"
+create_link "$DOTFILES_DIR/scripts/dev" "$HOME/.local/bin/dev"
+create_link "$DOTFILES_DIR/scripts/dev-init" "$HOME/.local/bin/dev-init"
 
 # Kitty terminal configuration
 echo -e "\n${GREEN}Setting up Kitty configuration...${NC}"

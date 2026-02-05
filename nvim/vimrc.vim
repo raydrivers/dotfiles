@@ -117,6 +117,11 @@ nnoremap <leader>K :lprev<CR>zz
 nnoremap <leader>q :copen<CR>
 nnoremap <C-q> :cclose<CR>
 
+" Load errors from file (default: .dev.log)
+command! -nargs=? -complete=file Errors
+    \ execute 'cgetfile ' . (<q-args> != '' ? <q-args> : '.dev.log') | copen
+nnoremap <leader>be :Errors<CR>
+
 " Find & Replace current word
 nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
 
