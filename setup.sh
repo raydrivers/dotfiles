@@ -1,41 +1,60 @@
 #!/bin/bash
-
-# Dotfiles setup script
-# Links configuration files to their proper locations
-
 set -e
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Get the directory where this script is located
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-echo -e "${GREEN}Setting up dotfiles from ${DOTFILES_DIR}${NC}"
-
-# Function to create symlink with backup
-create_link() {
-    local source="$1"
-    local target="$2"
-    
-    # Create target directory if it doesn't exist
-    mkdir -p "$(dirname "$target")"
-    
-    # Backup existing file/symlink if it exists
-    if [[ -e "$target" || -L "$target" ]]; then
-        echo -e "${YELLOW}Backing up existing $target${NC}"
-        mv "$target" "${target}.backup.$(date +%Y%m%d_%H%M%S)"
+detect_environment() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ -n "$WSL_DISTRO_NAME" ]] || grep -qi microsoft /proc/version 2>/dev/null; then
+        echo "wsl"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "linux"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "mingw"* ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "windows"
+    else
+        echo "unknown"
     fi
-    
-    # Create symlink
-    ln -sf "$source" "$target"
-    echo -e "${GREEN}${NC} Linked $source -> $target"
 }
 
-# Git configuration + delta
+ENV_TYPE=$(detect_environment)
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo -e "${GREEN}Environment: ${ENV_TYPE}${NC}"
+echo -e "${GREEN}Dotfiles: ${DOTFILES_DIR}${NC}"
+
+create_link() {
+    local source="$1" target="$2"
+    mkdir -p "$(dirname "$target")"
+    if [[ -e "$target" || -L "$target" ]]; then
+        echo -e "${YELLOW}Backing up $target${NC}"
+        mv "$target" "${target}.backup.$(date +%Y%m%d_%H%M%S)"
+    fi
+    ln -sf "$source" "$target"
+    echo -e "${GREEN}✓${NC} $target"
+}
+
+install_nvm() {
+    [[ -d "$HOME/.nvm" ]] && { echo -e "${GREEN}✓${NC} nvm"; return 0; }
+    echo -e "${YELLOW}Installing nvm...${NC}"
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+}
+
+install_node_nvm() {
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    command -v node &>/dev/null && { echo -e "${GREEN}✓${NC} Node $(node --version)"; return 0; }
+    echo -e "${YELLOW}Installing Node LTS...${NC}"
+    nvm install --lts
+    nvm alias default 'lts/*'
+    echo -e "${GREEN}✓${NC} Node $(node --version)"
+}
+
 echo -e "\n${GREEN}Setting up Git...${NC}"
 mkdir -p "$HOME/.config/git" "$HOME/.local/bin"
 create_link "$DOTFILES_DIR/git" "$HOME/.config/git/custom"
@@ -51,20 +70,22 @@ create_link "$DOTFILES_DIR/git/git-rebase-unpushed" "$HOME/.local/bin/git-rebase
 create_link "$DOTFILES_DIR/git/git-wt-common" "$HOME/.local/bin/git-wt-common"
 create_link "$DOTFILES_DIR/git/git-wt-add" "$HOME/.local/bin/git-wt-add"
 create_link "$DOTFILES_DIR/git/git-wt-peek" "$HOME/.local/bin/git-wt-peek"
-create_link "$DOTFILES_DIR/git/wt-" "$HOME/.local/bin/wt-"
 
-# Utility scripts
+
 echo -e "\n${GREEN}Setting up utility scripts...${NC}"
 create_link "$DOTFILES_DIR/scripts/starship-change" "$HOME/.local/bin/starship-change"
 create_link "$DOTFILES_DIR/scripts/clean-config-backups" "$HOME/.local/bin/clean-config-backups"
-create_link "$DOTFILES_DIR/scripts/screw" "$HOME/.local/bin/screw"
-create_link "$DOTFILES_DIR/scripts/brew-install" "$HOME/.local/bin/brew-install"
+if [[ "$ENV_TYPE" != "windows" ]]; then
+    create_link "$DOTFILES_DIR/scripts/screw" "$HOME/.local/bin/screw"
+    create_link "$DOTFILES_DIR/scripts/brew-install" "$HOME/.local/bin/brew-install"
+fi
 create_link "$DOTFILES_DIR/scripts/dev" "$HOME/.local/bin/dev"
 create_link "$DOTFILES_DIR/scripts/dev-init" "$HOME/.local/bin/dev-init"
 
-# Kitty terminal configuration
-echo -e "\n${GREEN}Setting up Kitty configuration...${NC}"
-create_link "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
+if [[ "$ENV_TYPE" != "windows" ]]; then
+    echo -e "\n${GREEN}Setting up Kitty...${NC}"
+    create_link "$DOTFILES_DIR/kitty" "$HOME/.config/kitty"
+fi
 
 detect_package_managers() {
     local managers=()
@@ -73,6 +94,7 @@ detect_package_managers() {
     command -v apt-get &>/dev/null && managers+=("apt")
     command -v dnf &>/dev/null && managers+=("dnf")
     command -v pacman &>/dev/null && managers+=("pacman")
+    command -v winget.exe &>/dev/null && managers+=("winget")
     echo "${managers[@]}"
 }
 
@@ -112,11 +134,26 @@ install_packages() {
         apt)    sudo apt-get update -qq && sudo apt-get install -y "$@" ;;
         dnf)    sudo dnf install -y "$@" ;;
         pacman) sudo pacman -S --needed "$@" ;;
+        winget) for p in "$@"; do winget.exe install --id "$p" -e --accept-source-agreements --accept-package-agreements; done ;;
     esac
 }
 
 resolve_pkg() {
     local pm="$1" pkg="$2"
+    if [[ "$pm" == "winget" ]]; then
+        case "$pkg" in
+            neovim)      echo "Neovim.Neovim" ;;
+            ripgrep)     echo "BurntSushi.ripgrep.MSVC" ;;
+            fd)          echo "sharkdp.fd" ;;
+            direnv)      echo "direnv.direnv" ;;
+            starship)    echo "Starship.Starship" ;;
+            tree-sitter) return ;;
+            build-tools) return ;;
+            node)        return ;;
+            *)           echo "$pkg" ;;
+        esac
+        return
+    fi
     case "$pkg" in
         fd)
             [[ "$pm" == apt || "$pm" == dnf ]] && echo "fd-find" || echo "fd" ;;
@@ -155,15 +192,17 @@ resolve_all_pkgs() {
 
 pkg_to_bin() {
     case "$1" in
-        neovim)                          echo "nvim" ;;
-        ripgrep)                         echo "rg" ;;
-        fd|fd-find)                      echo "fd" ;;
-        tree-sitter|tree-sitter-cli)     echo "tree-sitter" ;;
-        node|nodejs)                     echo "node" ;;
-        npm)                             echo "npm" ;;
-        build-essential|base-devel|gcc)  echo "cc" ;;
-        make)                            echo "make" ;;
-        *)                               echo "$1" ;;
+        neovim|Neovim.Neovim)                       echo "nvim" ;;
+        ripgrep|BurntSushi.ripgrep.MSVC)             echo "rg" ;;
+        fd|fd-find|sharkdp.fd)                       echo "fd" ;;
+        tree-sitter|tree-sitter-cli) echo "tree-sitter" ;;
+        node|nodejs)                                 echo "node" ;;
+        npm)                                         echo "npm" ;;
+        build-essential|base-devel|gcc)              echo "cc" ;;
+        make)                                        echo "make" ;;
+        direnv|direnv.direnv)                        echo "direnv" ;;
+        starship|Starship.Starship)                  echo "starship" ;;
+        *)                                           echo "$1" ;;
     esac
 }
 
@@ -171,16 +210,22 @@ detect_source() {
     local bin_path
     bin_path="$(command -v "$1" 2>/dev/null)" || return 1
     case "$bin_path" in
-        /nix/*|*/.nix-profile/*)            echo "nix" ;;
+        /nix/*|*/.nix-profile/*)             echo "nix" ;;
         /opt/homebrew/*|/usr/local/Cellar/*) echo "brew" ;;
-        /usr/bin/*|/bin/*)                  echo "system" ;;
-        *)                                  echo "PATH" ;;
+        /usr/bin/*|/bin/*)                   echo "system" ;;
+        *)                                   echo "PATH" ;;
     esac
 }
 
-REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter node direnv build-tools)
+echo -e "\n${GREEN}Packages${NC}"
 
-echo -e "\n${GREEN}Package installation${NC}"
+if [[ "$ENV_TYPE" == "wsl" || "$ENV_TYPE" == "linux" || "$ENV_TYPE" == "windows" ]]; then
+    install_nvm
+    install_node_nvm
+fi
+
+REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter direnv build-tools starship)
+[[ "$ENV_TYPE" == "macos" ]] && REQUIRED_PACKAGES+=(node)
 read -ra managers <<< "$(detect_package_managers)"
 pm=$(prompt_package_manager "${managers[@]}") && {
     read -ra resolved <<< "$(resolve_all_pkgs "$pm" "${REQUIRED_PACKAGES[@]}")"
@@ -211,8 +256,8 @@ pm=$(prompt_package_manager "${managers[@]}") && {
         read -rp "Install these packages? [y/N]: " confirm
         if [[ "$confirm" == [yY] ]]; then
             install_packages "$pm" "${missing[@]}"
-            if [[ "$pm" == "apt" || "$pm" == "dnf" ]]; then
-                npm i -g tree-sitter-cli
+            if [[ "$pm" == "apt" || "$pm" == "dnf" || "$pm" == "winget" ]]; then
+                command -v tree-sitter &>/dev/null || npm i -g tree-sitter-cli
             fi
         fi
     else
@@ -220,66 +265,47 @@ pm=$(prompt_package_manager "${managers[@]}") && {
     fi
 }
 
-echo -e "\n${GREEN}Setting up Neovim configuration...${NC}"
-create_link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+echo -e "\n${GREEN}Configs${NC}"
+if [[ "$ENV_TYPE" == "windows" ]]; then
+    create_link "$DOTFILES_DIR/nvim" "$HOME/AppData/Local/nvim"
+else
+    create_link "$DOTFILES_DIR/nvim" "$HOME/.config/nvim"
+fi
 
-# Starship prompt configuration
-echo -e "\n${GREEN}Starship configurations available in $DOTFILES_DIR/starship/${NC}"
-echo -e "${YELLOW}Use 'starship-change $DOTFILES_DIR/starship/<theme>.toml' to select a starship theme${NC}"
+echo -e "${GREEN}Starship themes: $DOTFILES_DIR/starship/${NC}"
+echo -e "${YELLOW}Use 'starship-change <theme>.toml' to switch${NC}"
+[[ ! -f "$HOME/.config/starship.toml" && ! -L "$HOME/.config/starship.toml" ]] \
+    && create_link "$DOTFILES_DIR/starship/simple.toml" "$HOME/.config/starship.toml"
 
-# TMux configuration
-echo -e "\n${GREEN}Setting up TMux configuration...${NC}"
-create_link "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
-create_link "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
+if [[ "$ENV_TYPE" != "windows" ]]; then
+    create_link "$DOTFILES_DIR/tmux/tmux.conf" "$HOME/.tmux.conf"
+    create_link "$DOTFILES_DIR/tmux" "$HOME/.config/tmux"
+fi
 
-# Linux-specific configurations (Hyprland, Waybar, Rofi)
-if [[ "$OSTYPE" != "darwin"* ]]; then
-    # Hyprland configuration
-    echo -e "\n${GREEN}Setting up Hyprland configuration...${NC}"
+if [[ "$ENV_TYPE" == "linux" ]]; then
+    echo -e "\n${GREEN}Linux Desktop${NC}"
     create_link "$DOTFILES_DIR/hypr" "$HOME/.config/hypr"
-    
-    # Waybar configuration
-    echo -e "\n${GREEN}Setting up Waybar configuration...${NC}"
     create_link "$DOTFILES_DIR/waybar" "$HOME/.config/waybar"
-    
-    # Rofi configuration
-    echo -e "\n${GREEN}Setting up Rofi configuration...${NC}"
     create_link "$DOTFILES_DIR/rofi" "$HOME/.config/rofi"
-    
-    # SDDM configuration
-    echo -e "\n${GREEN}Setting up SDDM configuration...${NC}"
     sudo cp -r "$DOTFILES_DIR/sddm/monochrome" "/usr/share/sddm/themes/"
     sudo cp "$DOTFILES_DIR/sddm/sddm.conf" "/etc/sddm.conf"
-    
-    echo -e "${GREEN}SDDM monochrome theme installed with Wayland support${NC}"
 fi
 
-# Zsh configuration
-echo -e "\n${GREEN}Setting up Zsh configuration...${NC}"
-create_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
-
-# macOS specific configurations
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo -e "\n${GREEN}Setting up macOS configurations...${NC}"
-    
-    # Raycast configuration (if Raycast is installed)
-    if [[ -d "$HOME/Library/Application Support/com.raycast.macos" ]]; then
-        create_link "$DOTFILES_DIR/macos/raycast.rayconfig" "$HOME/Library/Application Support/com.raycast.macos/raycast.rayconfig"
-    else
-        echo -e "${YELLOW}Raycast not found, skipping Raycast configuration${NC}"
-    fi
+if [[ "$ENV_TYPE" == "windows" ]]; then
+    echo -e "\n${GREEN}Shell configs (Windows)${NC}"
+    create_link "$DOTFILES_DIR/bash/.bashrc" "$HOME/.bashrc"
+    PS_PROFILE_DIR="$HOME/Documents/PowerShell"
+    mkdir -p "$PS_PROFILE_DIR"
+    create_link "$DOTFILES_DIR/powershell/profile.ps1" "$PS_PROFILE_DIR/Microsoft.PowerShell_profile.ps1"
+else
+    create_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
 fi
 
-echo -e "\n${GREEN} Dotfiles setup complete!${NC}"
-echo -e "${YELLOW}Note: You may need to restart your terminal or reload configurations for changes to take effect.${NC}"
-
-# Optional: Source common shell configurations if they exist
-if [[ -f "$HOME/.bashrc" ]]; then
-    echo -e "${GREEN}Reloading ~/.bashrc${NC}"
-    source "$HOME/.bashrc"
+if [[ "$ENV_TYPE" == "macos" ]]; then
+    echo -e "\n${GREEN}macOS${NC}"
+    [[ -d "$HOME/Library/Application Support/com.raycast.macos" ]] \
+        && create_link "$DOTFILES_DIR/macos/raycast.rayconfig" "$HOME/Library/Application Support/com.raycast.macos/raycast.rayconfig"
 fi
 
-if [[ -f "$HOME/.zshrc" ]]; then
-    echo -e "${GREEN}Reloading ~/.zshrc${NC}"
-    source "$HOME/.zshrc"
-fi
+echo -e "\n${GREEN}✓ Setup complete${NC}"
+echo -e "${YELLOW}Restart terminal for changes to take effect${NC}"

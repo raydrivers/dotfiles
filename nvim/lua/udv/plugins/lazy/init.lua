@@ -177,7 +177,9 @@ local telescope_extension_ui_select = add_plugin {
 local telescope_extension_fzf_native = add_plugin {
     "nvim-telescope/telescope-fzf-native.nvim",
     name = "telescope-fzf-native",
-    build = "make",
+    build = (vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1)
+        and "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
+        or "make",
 }
 
 add_plugin {
