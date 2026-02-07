@@ -146,7 +146,6 @@ resolve_pkg() {
             ripgrep)     echo "BurntSushi.ripgrep.MSVC" ;;
             fd)          echo "sharkdp.fd" ;;
             direnv)      echo "direnv.direnv" ;;
-            starship)    echo "Starship.Starship" ;;
             tree-sitter) return ;;
             build-tools) return ;;
             node)        return ;;
@@ -201,7 +200,6 @@ pkg_to_bin() {
         build-essential|base-devel|gcc)              echo "cc" ;;
         make)                                        echo "make" ;;
         direnv|direnv.direnv)                        echo "direnv" ;;
-        starship|Starship.Starship)                  echo "starship" ;;
         *)                                           echo "$1" ;;
     esac
 }
@@ -224,7 +222,14 @@ if [[ "$ENV_TYPE" == "wsl" || "$ENV_TYPE" == "linux" || "$ENV_TYPE" == "windows"
     install_node_nvm
 fi
 
-REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter direnv build-tools starship)
+if command -v starship &>/dev/null; then
+    echo -e "${GREEN}✓${NC} starship"
+else
+    echo -e "${YELLOW}Installing starship...${NC}"
+    curl -sS https://starship.rs/install.sh | sh
+fi
+
+REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter direnv build-tools)
 [[ "$ENV_TYPE" == "macos" ]] && REQUIRED_PACKAGES+=(node)
 read -ra managers <<< "$(detect_package_managers)"
 pm=$(prompt_package_manager "${managers[@]}") && {
