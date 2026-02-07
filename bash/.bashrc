@@ -1,20 +1,15 @@
-HISTFILE=~/.zsh_history
+HISTFILE=~/.bash_history
 HISTSIZE=10000
-SAVEHIST=10000
-setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_VERIFY SHARE_HISTORY
+HISTFILESIZE=10000
+HISTCONTROL=ignoredups:ignorespace
+shopt -s histappend histverify
 
-autoload -U colors && colors
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
-
-autoload -Uz compinit && compinit
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' menu select
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=nvim
@@ -40,6 +35,5 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-eval "$(starship init zsh)"
-eval "$(direnv hook zsh)"
-
+command -v starship &>/dev/null && eval "$(starship init bash)"
+command -v direnv &>/dev/null && eval "$(direnv hook bash)"
