@@ -14,7 +14,7 @@ extract_issues() {
     local parsers="$DOTFILES_DIR/scripts/dev-parsers"
     local warn=$($INCLUDE_WARNINGS && echo 1 || echo 0)
 
-    parse() { awk -v DIR="$dir" -v WARN="$warn" -f "$parsers/$1" "$2"; }
+    parse() { awk -v DIR="$dir" -v WARN="$warn" -f "$parsers/common" -f "$parsers/$1" "$2"; }
 
     parse compiler "$1"
     parse cmake "$1"
@@ -29,8 +29,8 @@ for script in ./dev ./dev.sh ./.dev; do
             echo ""
             echo "Failed with exit code $exit_code. Opening editor for resolution..."
             extract_issues "$LOGFILE" > "$LOGFILE.qf"
-            first_file=$(head -1 "$LOGFILE.qf" | cut -d: -f1)
-            first_line=$(head -1 "$LOGFILE.qf" | cut -d: -f2)
+            first_file=$(head -1 "$LOGFILE.qf" | awk -F: '{ if ($1 ~ /^[A-Za-z]$/) print $1 ":" $2; else print $1 }')
+            first_line=$(head -1 "$LOGFILE.qf" | awk -F: '{ if ($1 ~ /^[A-Za-z]$/) print $3; else print $2 }')
             nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
         fi
         exit $exit_code

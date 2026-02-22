@@ -1,0 +1,7 @@
+#!/usr/bin/awk -f
+# Shared helpers for dev parsers
+
+function make_absolute(path) {
+    if (path ~ /^[A-Za-z]:/ || path ~ /^\//) return path
+    return DIR "/" path
+}

@@ -23,6 +23,9 @@ detect_environment() {
 ENV_TYPE=$(detect_environment)
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Enable real symlinks on Windows (MSYS/Git Bash defaults to copies)
+[[ "$ENV_TYPE" == "windows" ]] && export MSYS=winsymlinks:nativestrict
+
 echo -e "${GREEN}Environment: ${ENV_TYPE}${NC}"
 echo -e "${GREEN}Dotfiles: ${DOTFILES_DIR}${NC}"
 
