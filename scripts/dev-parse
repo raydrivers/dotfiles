@@ -1,0 +1,25 @@
+#!/bin/bash
+# Parse build/test logs into quickfix format
+# Usage: dev-parse [-w] <logfile>
+
+INCLUDE_WARNINGS=false
+
+while getopts "w" opt; do
+    case $opt in
+        w) INCLUDE_WARNINGS=true ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [[ -z "$1" ]]; then
+    echo "Usage: dev-parse [-w] <logfile>" >&2
+    exit 1
+fi
+
+dir="$(pwd)"
+parsers="$DOTFILES_DIR/scripts/dev-parsers"
+warn=$($INCLUDE_WARNINGS && echo 1 || echo 0)
+
+for p in "$parsers"/*; do
+    awk -v DIR="$dir" -v WARN="$warn" -f "$p" "$1"
+done
