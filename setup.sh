@@ -83,6 +83,7 @@ if [[ "$ENV_TYPE" != "windows" ]]; then
     create_link "$DOTFILES_DIR/scripts/brew-install" "$HOME/.local/bin/brew-install"
 fi
 create_link "$DOTFILES_DIR/scripts/dev" "$HOME/.local/bin/dev"
+create_link "$DOTFILES_DIR/scripts/dev-parse" "$HOME/.local/bin/dev-parse"
 create_link "$DOTFILES_DIR/scripts/dev-init" "$HOME/.local/bin/dev-init"
 
 if [[ "$ENV_TYPE" != "windows" ]]; then

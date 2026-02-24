@@ -1,0 +1,22 @@
+#!/usr/bin/awk -f
+# Parse gtest failures: file:line: Failure + message on next line
+
+/^\[ RUN      \]/ {
+    test = $NF
+}
+
+/^[^:]+:[0-9]+: Failure/ {
+    str = $0
+    sub(/: Failure$/, "", str)
+
+    n = split(str, parts, ":")
+    file = parts[1]
+    for (i = 2; i < n; i++) file = file ":" parts[i]
+    line = parts[n]
+
+    getline msg
+    gsub(/^[[:space:]]+/, "", msg)
+
+    path = (file ~ /^\//) ? file : DIR "/" file
+    print path ":" line ":1: [" test "] " msg
+}
