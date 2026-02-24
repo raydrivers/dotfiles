@@ -21,5 +21,6 @@ parsers="$DOTFILES_DIR/scripts/dev-parsers"
 warn=$($INCLUDE_WARNINGS && echo 1 || echo 0)
 
 for p in "$parsers"/*; do
-    awk -v DIR="$dir" -v WARN="$warn" -f "$p" "$1"
+    [[ "$(basename "$p")" == "common" ]] && continue
+    awk -v DIR="$dir" -v WARN="$warn" -f "$parsers/common" -f "$p" "$1"
 done

@@ -1,15 +1,10 @@
 #!/usr/bin/awk -f
 # Parse compiler errors/warnings: file:line:col: error/warning: message
 
-function prefix(line) {
-    if (line ~ /^\//) return line
-    return DIR "/" line
+/^([A-Za-z]:)?[^:]+:[0-9]+:[0-9]*:? error:/ {
+    print make_absolute($0)
 }
 
-/^[^:]+:[0-9]+:[0-9]*:? error:/ {
-    print prefix($0)
-}
-
-WARN && /^[^:]+:[0-9]+:[0-9]*:? warning:/ {
-    print prefix($0)
+WARN && /^([A-Za-z]:)?[^:]+:[0-9]+:[0-9]*:? warning:/ {
+    print make_absolute($0)
 }
