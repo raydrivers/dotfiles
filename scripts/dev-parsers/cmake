@@ -14,8 +14,7 @@ function parse_cmake(prefix) {
     getline msg
     gsub(/^[[:space:]]+/, "", msg)
 
-    path = (file ~ /^\//) ? file : DIR "/" file
-    print path ":" line ":1: " msg
+    emit(file, line, msg)
 }
 
 /^CMake Error at / {

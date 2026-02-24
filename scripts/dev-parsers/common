@@ -5,3 +5,7 @@ function make_absolute(path) {
     if (path ~ /^[A-Za-z]:/ || path ~ /^\//) return path
     return DIR "/" path
 }
+
+function emit(file, line, msg) {
+    print make_absolute(file) ":" line ":1: " msg
+}

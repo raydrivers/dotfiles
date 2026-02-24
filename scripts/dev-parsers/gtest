@@ -17,6 +17,5 @@
     getline msg
     gsub(/^[[:space:]]+/, "", msg)
 
-    path = (file ~ /^\//) ? file : DIR "/" file
-    print path ":" line ":1: [" test "] " msg
+    emit(file, line, "[" test "] " msg)
 }
