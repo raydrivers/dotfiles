@@ -5,13 +5,13 @@ function parse_msvc() {
     str = $0
     sub(/ \[.*\]$/, "", str)
 
-    match(str, /\(([0-9]+),([0-9]+)\)/, loc)
+    match(str, /\(([0-9]+)(,([0-9]+))?\)/, loc)
     file = substr(str, 1, RSTART - 1)
 
     msg = substr(str, RSTART + RLENGTH)
     sub(/^: /, "", msg)
 
-    emit(file, loc[1], loc[2], msg)
+    emit(file, loc[1], loc[3]+0, msg)
 }
 
 /^[A-Za-z]:[^(]+\([0-9]+(,[0-9]+)?\): error/ {

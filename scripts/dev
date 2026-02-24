@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# Print "file line" from first quickfix entry, handling Windows drive letters (C:\...)
+extract_qf_location() {
+    awk -F: 'NR==1{
+        if ($1 ~ /^[A-Za-z]$/) print $1":"$2, $3; else print $1, $2
+    }' "$1"
+}
+
 LOGFILE=".dev.log"
 WARN_FLAG=""
 
@@ -18,8 +26,7 @@ for script in ./dev ./dev.sh ./.dev; do
             echo ""
             echo "Failed with exit code $exit_code. Opening editor for resolution..."
             dev-parse $WARN_FLAG "$LOGFILE" > "$LOGFILE.qf"
-            first_file=$(head -1 "$LOGFILE.qf" | cut -d: -f1)
-            first_line=$(head -1 "$LOGFILE.qf" | cut -d: -f2)
+            read -r first_file first_line < <(extract_qf_location "$LOGFILE.qf")
             nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
         fi
         exit $exit_code
