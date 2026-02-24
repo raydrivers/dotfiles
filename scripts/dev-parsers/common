@@ -6,6 +6,6 @@ function make_absolute(path) {
     return DIR "/" path
 }
 
-function emit(file, line, msg) {
-    print make_absolute(file) ":" line ":1: " msg
+function emit(file, line, col, msg) {
+    print make_absolute(file) ":" line ":" col ": " msg
 }
