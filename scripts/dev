@@ -23,11 +23,13 @@ for script in ./dev ./dev.sh ./.dev; do
         exit_code=${PIPESTATUS[0]}
 
         if [[ $exit_code -ne 0 ]]; then
-            echo ""
-            echo "Failed with exit code $exit_code. Opening editor for resolution..."
             dev-parse $WARN_FLAG "$LOGFILE" > "$LOGFILE.qf"
-            read -r first_file first_line < <(extract_qf_location "$LOGFILE.qf")
-            nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
+            if [[ -s "$LOGFILE.qf" ]]; then
+                echo ""
+                echo "Failed with exit code $exit_code. Opening editor..."
+                read -r first_file first_line < <(extract_qf_location "$LOGFILE.qf")
+                nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
+            fi
         fi
         exit $exit_code
     fi
