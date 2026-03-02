@@ -1,6 +1,10 @@
 format = """
-$username@$hostname $directory $git_branch
+$env_var_WSL_DISTRO_NAME$username@$hostname $directory $git_branch
 $character"""
+
+[env_var.WSL_DISTRO_NAME]
+format = "[WSL ](bold #b294bb)"
+disabled = false
 
 [character]
 success_symbol = "[>](bold green)"

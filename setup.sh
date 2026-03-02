@@ -40,6 +40,31 @@ create_link() {
     echo -e "${GREEN}✓${NC} $target"
 }
 
+install_zsh() {
+    [[ "$ENV_TYPE" == "windows" ]] && return 0
+    if command -v zsh &>/dev/null; then
+        echo -e "${GREEN}✓${NC} zsh"
+    else
+        echo -e "${YELLOW}zsh not found${NC}"
+        local confirm
+        read -rp "Install zsh? [y/N]: " confirm
+        [[ "$confirm" != [yY] ]] && return 0
+        command -v apt-get &>/dev/null && { sudo apt-get update -qq && sudo apt-get install -y zsh; }
+        command -v dnf &>/dev/null && sudo dnf install -y zsh
+        command -v pacman &>/dev/null && sudo pacman -S --needed zsh
+        command -v brew &>/dev/null && brew install zsh
+    fi
+    command -v zsh &>/dev/null || return 0
+    local current_shell
+    current_shell="$(getent passwd "$USER" 2>/dev/null | cut -d: -f7)"
+    [[ "$current_shell" == "$(command -v zsh)" ]] && return 0
+    local confirm
+    read -rp "Set zsh as default shell? [y/N]: " confirm
+    [[ "$confirm" != [yY] ]] && return 0
+    chsh -s "$(command -v zsh)"
+    echo -e "${GREEN}✓${NC} Default shell set to zsh"
+}
+
 install_nvm() {
     [[ -d "$HOME/.nvm" ]] && { echo -e "${GREEN}✓${NC} nvm"; return 0; }
     echo -e "${YELLOW}Installing nvm...${NC}"
@@ -51,11 +76,23 @@ install_nvm() {
 install_node_nvm() {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    command -v node &>/dev/null && { echo -e "${GREEN}✓${NC} Node $(node --version)"; return 0; }
-    echo -e "${YELLOW}Installing Node LTS...${NC}"
+
+    # Remove system node so nvm manages it exclusively
+    local sys_node
+    sys_node="$(command -v node 2>/dev/null)" || true
+    if [[ -n "$sys_node" && "$sys_node" != "$HOME/.nvm/"* ]]; then
+        echo -e "${YELLOW}System node found at ${sys_node}${NC}"
+        local confirm
+        read -rp "Remove system node so nvm manages it? [y/N]: " confirm
+        if [[ "$confirm" == [yY] ]]; then
+            sudo apt-get remove -y nodejs npm 2>/dev/null || true
+            hash -r
+        fi
+    fi
+
     nvm install --lts
     nvm alias default 'lts/*'
-    echo -e "${GREEN}✓${NC} Node $(node --version)"
+    echo -e "${GREEN}✓${NC} Node $(node --version) (nvm)"
 }
 
 echo -e "\n${GREEN}Setting up Git...${NC}"
@@ -197,7 +234,8 @@ pkg_to_bin() {
     case "$1" in
         neovim|Neovim.Neovim)                       echo "nvim" ;;
         ripgrep|BurntSushi.ripgrep.MSVC)             echo "rg" ;;
-        fd|fd-find|sharkdp.fd)                       echo "fd" ;;
+        fd|sharkdp.fd)                               echo "fd" ;;
+        fd-find)                                     echo "fdfind" ;;
         tree-sitter|tree-sitter-cli) echo "tree-sitter" ;;
         node|nodejs)                                 echo "node" ;;
         npm)                                         echo "npm" ;;
@@ -214,12 +252,15 @@ detect_source() {
     case "$bin_path" in
         /nix/*|*/.nix-profile/*)             echo "nix" ;;
         /opt/homebrew/*|/usr/local/Cellar/*) echo "brew" ;;
+        "$HOME/.nvm/"*)                      echo "nvm" ;;
         /usr/bin/*|/bin/*)                   echo "system" ;;
         *)                                   echo "PATH" ;;
     esac
 }
 
 echo -e "\n${GREEN}Packages${NC}"
+
+install_zsh
 
 if [[ "$ENV_TYPE" == "wsl" || "$ENV_TYPE" == "linux" || "$ENV_TYPE" == "windows" ]]; then
     install_nvm
@@ -265,14 +306,25 @@ pm=$(prompt_package_manager "${managers[@]}") && {
         read -rp "Install these packages? [y/N]: " confirm
         if [[ "$confirm" == [yY] ]]; then
             install_packages "$pm" "${missing[@]}"
-            if [[ "$pm" == "apt" || "$pm" == "dnf" || "$pm" == "winget" ]]; then
-                command -v tree-sitter &>/dev/null || npm i -g tree-sitter-cli
+            # Debian/Ubuntu installs fd as fdfind — symlink it
+            command -v fdfind &>/dev/null && ! command -v fd &>/dev/null \
+                && ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+            if ! command -v tree-sitter &>/dev/null; then
+                [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ] && \. "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+                npm i -g tree-sitter-cli
             fi
         fi
     else
         echo -e "${GREEN}All packages already installed${NC}"
     fi
 }
+
+if [[ "$ENV_TYPE" == "wsl" ]]; then
+    echo -e "\n${GREEN}WSL fixes${NC}"
+    # Create missing zsh vendor-completions dir to suppress compinit warnings
+    sudo mkdir -p /usr/share/zsh/vendor-completions
+    echo -e "${GREEN}✓${NC} zsh vendor-completions dir"
+fi
 
 echo -e "\n${GREEN}Configs${NC}"
 if [[ "$ENV_TYPE" == "windows" ]]; then
