@@ -187,6 +187,7 @@ resolve_pkg() {
             ripgrep)     echo "BurntSushi.ripgrep.MSVC" ;;
             fd)          echo "sharkdp.fd" ;;
             direnv)      echo "direnv.direnv" ;;
+            tmux)        return ;;
             tree-sitter) return ;;
             build-tools) return ;;
             node)        return ;;
@@ -274,7 +275,7 @@ else
     curl -sS https://starship.rs/install.sh | sh
 fi
 
-REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter direnv build-tools)
+REQUIRED_PACKAGES=(neovim ripgrep fd tree-sitter direnv build-tools tmux)
 [[ "$ENV_TYPE" == "macos" ]] && REQUIRED_PACKAGES+=(node)
 read -ra managers <<< "$(detect_package_managers)"
 pm=$(prompt_package_manager "${managers[@]}") && {
