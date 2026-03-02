@@ -9,9 +9,9 @@ NC='\033[0m'
 cat <<'ART'
 
     ╔══════════════════════════════════════╗
-    ║         🔩  S C R E W  🔩           ║
+    ║         🔩  S C R E W  🔩            ║
     ║                                      ║
-    ║   ⚠  Homebrew is known to:          ║
+    ║   ⚠  Homebrew is known to:           ║
     ║                                      ║
     ║   • Auto-update everything silently  ║
     ║   • Remove old versions behind       ║
