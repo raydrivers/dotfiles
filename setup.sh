@@ -365,6 +365,8 @@ fi
 
 if [[ "$ENV_TYPE" == "macos" ]]; then
     echo -e "\n${GREEN}macOS${NC}"
+    sudo mkdir -p /usr/local/{bin,lib,share,include,etc}
+    echo -e "${GREEN}✓${NC} /usr/local directories"
     [[ -d "$HOME/Library/Application Support/com.raycast.macos" ]] \
         && create_link "$DOTFILES_DIR/macos/raycast.rayconfig" "$HOME/Library/Application Support/com.raycast.macos/raycast.rayconfig"
 fi
