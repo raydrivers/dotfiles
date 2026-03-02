@@ -1,6 +1,7 @@
 # nvim config
 
 Portable, readable, non-bloat Neovim configuration.
+Less plugins, more config code.
 
 ## Structure
 

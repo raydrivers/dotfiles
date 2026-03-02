@@ -1,81 +1,69 @@
 #!/bin/bash
 
+# Clean backup files created by setup.sh
+
 set -e
 
-RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m'
 
-clean_backups() {
-    local target="$1"
-    local found=0
-    for backup in "${target}.backup."*; do
-        [[ -e "$backup" ]] || continue
-        echo -e "  ${RED}✗${NC} $backup"
-        rm -rf "$backup"
-        found=1
-    done
-    return $((1 - found))
-}
+search_dirs=("$@")
+if [[ ${#search_dirs[@]} -eq 0 ]]; then
+    # Directories where setup.sh creates symlinks
+    search_dirs=(
+        "$HOME/.config"
+        "$HOME/.local/bin"
+    )
+    # $HOME itself for .zshrc, .bashrc, .tmux.conf
+    # (maxdepth 1 via separate find below)
+fi
 
-TARGETS=(
-    "$HOME/.config/git/aliases.gitconfig"
-    "$HOME/.local/bin/git-last"
-    "$HOME/.local/bin/git-unpushed"
-    "$HOME/.local/bin/git-rebase-unpushed"
-    "$HOME/.local/bin/git-wt-common"
-    "$HOME/.local/bin/git-wt-add"
-    "$HOME/.local/bin/git-wt-peek"
-    "$HOME/.local/bin/wt-"
-    "$HOME/.local/bin/starship-change"
-    "$HOME/.local/bin/clean-config-backups"
-    "$HOME/.local/bin/screw"
-    "$HOME/.local/bin/brew-install"
-    "$HOME/.config/kitty"
-    "$HOME/.config/nvim"
-    "$HOME/.tmux.conf"
-    "$HOME/.config/tmux"
-    "$HOME/.zshrc"
+echo "Searching for backup files..."
+
+backups=()
+while IFS= read -r line; do
+    backups+=("$line")
+done < <(
+    find "$HOME" -maxdepth 1 \
+        -name "*.backup.*" \
+        \( -type f -o -type l \) \
+        2>/dev/null
+    find "${search_dirs[@]}" \
+        -name "*.backup.*" \
+        \( -type f -o -type l -o -type d \) \
+        2>/dev/null
 )
 
-if [[ "$OSTYPE" != "darwin"* ]]; then
-    TARGETS+=(
-        "$HOME/.config/hypr"
-        "$HOME/.config/waybar"
-        "$HOME/.config/rofi"
-    )
-fi
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    TARGETS+=("$HOME/Library/Application Support/com.raycast.macos/raycast.rayconfig")
-fi
-
-echo -e "${GREEN}Scanning for backup files...${NC}"
-
-found_any=0
-for target in "${TARGETS[@]}"; do
-    for backup in "${target}.backup."*; do
-        if [[ -e "$backup" ]]; then
-            found_any=1
-            echo "  $backup"
-        fi
-    done
-done
-
-if [[ $found_any -eq 0 ]]; then
+if [[ ${#backups[@]} -eq 0 ]]; then
     echo -e "${GREEN}No backup files found${NC}"
     exit 0
 fi
 
-echo ""
-read -rp "$(echo -e "${YELLOW}Remove these backup files? [y/N]: ${NC}")" confirm
+echo -e "${YELLOW}Found backup files:${NC}"
+for f in "${backups[@]}"; do
+    echo "  $f"
+done
+
+echo
+echo "Total: ${#backups[@]} backup files"
+echo
+
+read -rp "Delete these backup files? [y/N]: " confirm
 if [[ "$confirm" != [yY] ]]; then
+    echo -e "${YELLOW}Cancelled${NC}"
     exit 0
 fi
 
-for target in "${TARGETS[@]}"; do
-    clean_backups "$target" || true
+deleted=0
+for f in "${backups[@]}"; do
+    if rm -rf "$f"; then
+        echo -e "  ${GREEN}✓${NC} $f"
+        ((deleted++)) || true
+    else
+        echo -e "  ${RED}✗${NC} $f"
+    fi
 done
 
-echo -e "\n${GREEN}Cleanup complete${NC}"
+echo -e "\n${GREEN}Deleted $deleted backup files${NC}"
