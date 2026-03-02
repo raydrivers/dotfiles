@@ -263,10 +263,16 @@ set_default_zsh() {
     fi
 
     local current_shell
-    current_shell="$(getent passwd "$USER" 2>/dev/null \
-        | cut -d: -f7)"
-    if [[ "$current_shell" == "$(command -v zsh)" ]]; then
-        echo "zsh is already a default shell" >&2
+    if [[ "$ENV_TYPE" == "macos" ]]; then
+        current_shell="$(dscl . -read \
+            "$HOME" UserShell 2>/dev/null \
+            | awk '{print $2}')"
+    else
+        current_shell="$(getent passwd "$USER" \
+            2>/dev/null | cut -d: -f7)"
+    fi
+    if [[ "$current_shell" == *"/zsh" ]]; then
+        log_ok "zsh is already the default shell"
         return 0
     fi
 
@@ -623,10 +629,27 @@ setup_macos() {
     if [[ "$ENV_TYPE" != "macos" ]]; then
         return 0
     fi
-    log_section "macOS"
-    sudo mkdir -p \
-        /usr/local/{bin,lib,share,include,etc}
-    log_ok "/usr/local directories"
+    log_section "macOS-specific steps"
+
+    # Ensure /usr/local directories exist for
+    # manually installed tools and libraries
+    local dirs=(bin lib share include etc)
+    for d in "${dirs[@]}"; do
+        if [[ ! -d "/usr/local/$d" ]]; then
+            sudo mkdir -p "/usr/local/$d"
+            log_ok "Created /usr/local/$d"
+        fi
+    done
+
+    if command -v brew &>/dev/null; then
+        local brew_prefix
+        brew_prefix="$(brew --prefix)"
+        local comp="$brew_prefix/share/zsh/site-functions"
+        if [[ -d "$comp" ]]; then
+            log_ok "Homebrew completions: $comp"
+        fi
+    fi
+
     local raycast_dir
     raycast_dir="$HOME/Library/Application Support"
     raycast_dir+="/com.raycast.macos"
@@ -634,6 +657,8 @@ setup_macos() {
         create_link \
             "$DOTFILES_DIR/macos/raycast.rayconfig" \
             "$raycast_dir/raycast.rayconfig"
+    else
+        log_warn "Raycast not found, skipping"
     fi
 }
 
