@@ -4,7 +4,9 @@ vim.lsp.enable({
     'rust_analyzer',
     'cmake',
     'pyright',
-    'elixirls'
+    'elixirls',
+    'jdtls',
+    'kotlin_lsp',
 })
 
 vim.diagnostic.config({

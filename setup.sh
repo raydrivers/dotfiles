@@ -220,6 +220,32 @@ resolve_pkg() {
                 apt|dnf) return ;;
                 *)       echo "starship" ;;
             esac ;;
+        clangd)
+            case "$pm" in
+                pacman) echo "clang" ;;
+                winget) return ;;
+                *)      echo "clangd" ;;
+            esac ;;
+        rust-analyzer)
+            case "$pm" in
+                winget) return ;;
+                *)      echo "rust-analyzer" ;;
+            esac ;;
+        lua-language-server|pyright)
+            case "$pm" in
+                brew|nix|pacman) echo "$pkg" ;;
+                *)               return ;;
+            esac ;;
+        cmake-language-server|elixir-ls)
+            case "$pm" in
+                brew|nix) echo "$pkg" ;;
+                *)        return ;;
+            esac ;;
+        jdtls)
+            case "$pm" in
+                brew) echo "$pkg" ;;
+                *)    return ;;
+            esac ;;
         *) echo "$pkg" ;;
     esac
 }
@@ -457,6 +483,58 @@ install_starship_fallback() {
     fi
 }
 
+install_kotlin_lsp() {
+    if command -v kotlin-lsp &>/dev/null; then
+        log_ok "kotlin-lsp"
+        return 0
+    fi
+
+    local version="261.13587.0"
+    local platform
+    case "$(uname -s)-$(uname -m)" in
+        Darwin-arm64)  platform="mac-aarch64" ;;
+        Darwin-x86_64) platform="mac-x64" ;;
+        Linux-aarch64) platform="linux-aarch64" ;;
+        Linux-x86_64)  platform="linux-x64" ;;
+        *)
+            log_warn "kotlin-lsp: unsupported platform"
+            return 0 ;;
+    esac
+
+    local base_url="https://download-cdn.jetbrains.com"
+    base_url+="/kotlin-lsp/${version}"
+    local zip="kotlin-lsp-${version}-${platform}.zip"
+
+    local dest="$HOME/.local/share/kotlin-lsp"
+    local tmp
+    tmp=$(mktemp -d)
+
+    log_warn "Downloading kotlin-lsp ${version}..."
+    curl -sLo "$tmp/$zip" "$base_url/$zip" || {
+        log_error "Download failed"
+        rm -rf "$tmp"
+        return 1
+    }
+
+    rm -rf "$dest"
+    mkdir -p "$dest"
+    unzip -qo "$tmp/$zip" -d "$dest"
+    rm -rf "$tmp"
+
+    local launcher
+    launcher=$(find "$dest" -name "kotlin-lsp.sh" \
+        -type f | head -1)
+    if [[ -z "$launcher" ]]; then
+        log_error "kotlin-lsp launcher not found"
+        return 1
+    fi
+
+    chmod +x "$launcher"
+    ln -sf "$launcher" \
+        "$HOME/.local/bin/kotlin-lsp"
+    log_ok "kotlin-lsp ${version}"
+}
+
 post_install_fixups() {
     symlink_fdfind
     install_tree_sitter_cli
@@ -535,6 +613,19 @@ setup_packages() {
         "${managers[@]}") && {
         setup_required_packages "$pm"
     }
+
+    if [[ -n "${pm:-}" ]] \
+        && confirm "Install LSP servers for Neovim?"
+    then
+        REQUIRED_PACKAGES=(
+            clangd lua-language-server
+            rust-analyzer cmake-language-server
+            pyright elixir-ls
+            jdtls
+        )
+        setup_required_packages "$pm"
+        install_kotlin_lsp
+    fi
 
     set_default_zsh
 }

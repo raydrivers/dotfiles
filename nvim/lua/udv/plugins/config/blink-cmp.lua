@@ -1,11 +1,9 @@
 require('blink.cmp').setup({
-    -- Completion behavior - manual trigger only
     completion = {
         trigger = {
             show_in_snippet = false,
             show_on_keyword = false,
             show_on_trigger_character = false,
-            show_on_accept_on_trigger_character = false,
         },
         documentation = {
             auto_show = false,
@@ -16,60 +14,34 @@ require('blink.cmp').setup({
             draw = {
                 gap = 2,
                 padding = 1,
-                columns = { { "kind_icon", "label", gap = 1 }, { "kind", "source_name" } },
+                columns = {
+                    { "kind_icon", "label", gap = 1 },
+                    { "kind", "source_name" },
+                },
             },
         },
-        -- Accept behavior
         accept = {
             create_undo_point = true,
-            auto_brackets = {
-                enabled = true,
-                default_brackets = { "(", ")" },
-                override_brackets_for_filetypes = {
-                    lua = { "{", "}" },
-                },
-                semantic_token_resolution = {
-                    enabled = true,
-                    timeout_ms = 400,
-                },
-            },
+            auto_brackets = { enabled = true },
         },
     },
 
-    -- Simplified fuzzy matching
     fuzzy = {
-        sorts = { "label", "kind", "score" },
+        sorts = { "score", "sort_text" },
     },
 
-    -- Disable signature help to use builtin LSP signature help
-    signature = {
-        enabled = false,
-    },
+    signature = { enabled = false },
 
-    -- Sources configuration with priorities
     sources = {
         default = { "lsp", "path", "snippets", "buffer" },
         providers = {
-            snippets = {
-                score_offset = 100, -- Highest priority for snippets
-            },
-            lsp = {
-                score_offset = 50,
-            },
-            path = {
-                score_offset = 10,
-                opts = {
-                    trailing_slash = false,
-                    label_trailing_slash = true,
-                },
-            },
-            buffer = {
-                score_offset = 5,
-            },
+            snippets = { score_offset = 100 },
+            lsp = { score_offset = 50 },
+            path = { score_offset = 10 },
+            buffer = { score_offset = 5 },
         },
     },
 
-    -- Keymap configuration
     keymap = {
         preset = "default",
         ["<C-Space>"] = { "show" },
@@ -83,9 +55,5 @@ require('blink.cmp').setup({
         ["<C-p>"] = { "select_prev", "fallback" },
     },
 
-    -- Snippet support with LuaSnip
-    snippets = {
-        preset = "luasnip",
-    },
-
+    snippets = { preset = "luasnip" },
 })
