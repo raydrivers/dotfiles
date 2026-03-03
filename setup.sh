@@ -220,6 +220,32 @@ resolve_pkg() {
                 apt|dnf) return ;;
                 *)       echo "starship" ;;
             esac ;;
+        clangd)
+            case "$pm" in
+                pacman) echo "clang" ;;
+                winget) return ;;
+                *)      echo "clangd" ;;
+            esac ;;
+        rust-analyzer)
+            case "$pm" in
+                winget) return ;;
+                *)      echo "rust-analyzer" ;;
+            esac ;;
+        lua-language-server|pyright)
+            case "$pm" in
+                brew|nix|pacman) echo "$pkg" ;;
+                *)               return ;;
+            esac ;;
+        cmake-language-server|elixir-ls)
+            case "$pm" in
+                brew|nix) echo "$pkg" ;;
+                *)        return ;;
+            esac ;;
+        jdtls|kotlin-language-server)
+            case "$pm" in
+                brew) echo "$pkg" ;;
+                *)    return ;;
+            esac ;;
         *) echo "$pkg" ;;
     esac
 }
@@ -535,6 +561,18 @@ setup_packages() {
         "${managers[@]}") && {
         setup_required_packages "$pm"
     }
+
+    if [[ -n "${pm:-}" ]] \
+        && confirm "Install LSP servers for Neovim?"
+    then
+        REQUIRED_PACKAGES=(
+            clangd lua-language-server
+            rust-analyzer cmake-language-server
+            pyright elixir-ls
+            jdtls kotlin-language-server
+        )
+        setup_required_packages "$pm"
+    fi
 
     set_default_zsh
 }
