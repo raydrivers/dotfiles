@@ -1,8 +1,5 @@
 return {
-    cmd = { "kotlin-language-server" },
-    cmd_env = {
-        JAVA_OPTS = "-Xmx2g -XX:+UseG1GC",
-    },
+    cmd = { "kotlin-lsp" },
     filetypes = { "kotlin" },
     root_markers = {
         "build.gradle",

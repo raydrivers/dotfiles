@@ -6,7 +6,7 @@ vim.lsp.enable({
     'pyright',
     'elixirls',
     'jdtls',
-    'kotlin_language_server',
+    'kotlin_lsp',
 })
 
 vim.diagnostic.config({
