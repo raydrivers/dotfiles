@@ -30,6 +30,9 @@
     # Amend commit without editing message
     amend = "commit --amend --no-edit"
 
+    # Bare clone with fetch refspec for remote tracking
+    clone-bare = "!f() { git clone --bare -c remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' \"$@\"; }; f"
+
     ### Additional Shorthands
     ap = add -p
     fp = "force-push"
