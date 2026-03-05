@@ -1,0 +1,59 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: git ciaclean [--dry] [--me]"
+    echo ""
+    echo "Delete local branches merged into origin/main."
+    echo ""
+    echo "Options:"
+    echo "  --dry   Show branches that would be deleted"
+    echo "  --me    Only delete branches authored by you"
+    exit 1
+}
+
+dry=false
+me=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry) dry=true ;;
+        --me) me=true ;;
+        *) usage ;;
+    esac
+done
+
+git fetch --prune --quiet
+
+branches=$(git branch --merged origin/main \
+    | grep -vE "^\s*(\*|main|master|develop)")
+
+if $me; then
+    email=$(git config user.email)
+    filtered=""
+    for branch in $branches; do
+        author=$(git log -1 --format='%ae' "$branch" 2>/dev/null)
+        if [[ "$author" == "$email" ]]; then
+            filtered="$filtered $branch"
+        fi
+    done
+    branches="$filtered"
+fi
+
+branches=$(echo "$branches" | xargs)
+
+if [[ -z "$branches" ]]; then
+    echo "No merged branches to clean."
+    exit 0
+fi
+
+if $dry; then
+    echo "Would delete:"
+    for branch in $branches; do
+        echo "  $branch"
+    done
+    exit 0
+fi
+
+for branch in $branches; do
+    git branch -d "$branch"
+done

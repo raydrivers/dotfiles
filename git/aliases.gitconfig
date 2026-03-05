@@ -44,6 +44,8 @@
     rebup = "rebase-unpushed"
     wt = "worktree"
 
+    ciaclean = "!git-ciaclean"
+
     wt-add = "!git-wt-add"
     wt-peek = "!git-wt-peek"
 
