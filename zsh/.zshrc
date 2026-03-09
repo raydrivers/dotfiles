@@ -40,6 +40,16 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
+if [[ -n "$KITTY_INSTALLATION_DIR" ]]; then
+    export KITTY_SHELL_INTEGRATION="enabled"
+    autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration
+    kitty-integration
+    unfunction kitty-integration
+fi
+
 eval "$(starship init zsh)"
 eval "$(direnv hook zsh)"
+
+bindkey -e  # Use emacs keymap for line editing (Ctrl+A, Ctrl+E, etc.)
+bindkey '^R' history-incremental-search-backward
 
