@@ -5,7 +5,7 @@ local parsers = {
     "javascript", "php", "doxygen", "glsl", "hlsl",
     "java", "kotlin", "nix", "sql", "yaml", "toml",
     "zig", "rust", "lua", "luadoc",
-    "markdown", "markdown_inline",
+    "markdown", "markdown_inline", "gn"
 }
 
 require("nvim-treesitter").setup({
