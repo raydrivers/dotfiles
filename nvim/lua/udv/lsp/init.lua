@@ -7,6 +7,7 @@ vim.lsp.enable({
     'elixirls',
     'jdtls',
     'kotlin_lsp',
+    'zls',
 })
 
 vim.diagnostic.config({

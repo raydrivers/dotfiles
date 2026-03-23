@@ -246,6 +246,11 @@ resolve_pkg() {
                 brew) echo "$pkg" ;;
                 *)    return ;;
             esac ;;
+        zls)
+            case "$pm" in
+                brew|nix|pacman) echo "$pkg" ;;
+                *)               return ;;
+            esac ;;
         *) echo "$pkg" ;;
     esac
 }
@@ -621,7 +626,7 @@ setup_packages() {
             clangd lua-language-server
             rust-analyzer cmake-language-server
             pyright elixir-ls
-            jdtls
+            jdtls zls
         )
         setup_required_packages "$pm"
         install_kotlin_lsp
