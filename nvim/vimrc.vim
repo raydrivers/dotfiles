@@ -117,6 +117,9 @@ nnoremap <leader>K :lprev<CR>zz
 nnoremap <leader>q :copen<CR>
 nnoremap <C-q> :cclose<CR>
 
+" Close quickfix if it's the last remaining window
+autocmd WinEnter * if winnr('$') == 1 && &buftype == 'quickfix' | quit | endif
+
 " Load errors from file (default: .dev.log)
 command! -nargs=? -complete=file Errors
     \ execute 'cgetfile ' . (<q-args> != '' ? <q-args> : '.dev.log') | copen
