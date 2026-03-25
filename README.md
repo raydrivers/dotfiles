@@ -5,7 +5,7 @@ My dotfiles for macOS, Linux, WSL, and Windows (MSYS/MinGW).
 ## Quick Start
 
 ```bash
-git clone https://github.com/raydrivers/dotfiles ~/dotfiles && cd ~/dotfiles && ./setup.sh
+git clone --recursive https://github.com/raydrivers/dotfiles ~/dotfiles && cd ~/dotfiles && ./setup.sh
 ```
 
 After setup, clean up any backup files created during installation:
@@ -108,6 +108,7 @@ rofi/         Rofi config (Linux)
 sddm/         SDDM login theme (Linux)
 macos/        macOS-specific (Raycast)
 scripts/      Utility and dev scripts
+ai/           AI tools config (private submodule)
 setup.sh      Install everything
 cleanup.sh    Remove backup files
 ```

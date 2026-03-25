@@ -2,6 +2,9 @@
 [init]
     defaultBranch = main
 
+[submodule]
+    recurse = true
+
 [include]
     path = ~/.config/git/custom/aliases.gitconfig
     path = ~/.config/git/custom/delta.gitconfig

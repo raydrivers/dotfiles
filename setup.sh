@@ -770,6 +770,16 @@ fi
 log_info "Environment: ${ENV_TYPE}"
 log_info "dotfiles: ${DOTFILES_DIR}"
 
+setup_ai() {
+    local ai_setup="$DOTFILES_DIR/ai/setup.sh"
+    if [[ ! -f "$ai_setup" ]]; then
+        log_warn "AI submodule not initialized, skipping"
+        return 0
+    fi
+    log_section "AI tools"
+    bash "$ai_setup"
+}
+
 setup_git
 setup_scripts
 setup_kitty
@@ -779,6 +789,7 @@ setup_configs
 setup_shell_configs
 setup_linux_desktop
 setup_macos
+setup_ai
 
 log_section "Setup complete"
 log_warn "Restart terminal for changes to take effect"
