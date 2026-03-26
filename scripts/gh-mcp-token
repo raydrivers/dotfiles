@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Creates a GitHub classic PAT for the MCP server
+# and writes it to .envrc.
+set -euo pipefail
+
+open_url() {
+    if command -v open &>/dev/null; then
+        open "$1"
+    elif command -v xdg-open &>/dev/null; then
+        xdg-open "$1"
+    elif command -v wslview &>/dev/null; then
+        wslview "$1"
+    else
+        echo "Open this URL manually:" >&2
+        echo "  $1" >&2
+    fi
+}
+
+accounts=$(gh auth status 2>&1 \
+    | awk '/Logged in to|Failed to log in to/ {
+        for (i=1; i<=NF; i++) {
+            if ($i == "to") host=$(i+1)
+            if ($i == "account") user=$(i+1)
+        }
+        gsub(/[^a-zA-Z0-9._-]/, "", user)
+        print host, user
+    }')
+
+if [[ -z "$accounts" ]]; then
+    echo "No GitHub accounts found." >&2
+    echo "Run: gh auth login" >&2
+    exit 1
+fi
+
+count=$(echo "$accounts" | wc -l | tr -d ' ')
+if [[ "$count" -eq 1 ]]; then
+    host=$(echo "$accounts" | awk '{print $1}')
+    user=$(echo "$accounts" | awk '{print $2}')
+    echo "Using $user on $host"
+else
+    echo "Select account:" >&2
+    i=1
+    while IFS=' ' read -r h u; do
+        echo "  $i) $u ($h)" >&2
+        i=$((i + 1))
+    done <<< "$accounts"
+
+    read -rp "Choice [1-$count]: " choice
+    if [[ "$choice" -lt 1 \
+        || "$choice" -gt "$count" ]]
+    then
+        echo "Invalid selection" >&2
+        exit 1
+    fi
+    line=$(echo "$accounts" | sed -n "${choice}p")
+    host=$(echo "$line" | awk '{print $1}')
+    user=$(echo "$line" | awk '{print $2}')
+fi
+
+url="https://$host/settings/tokens/new"
+url+="?description=Claude+Code+MCP&scopes=repo"
+
+echo ""
+open_url "$url"
+echo "Scopes are pre-filled in the browser."
+echo ""
+
+read -rsp "Paste token: " token
+echo ""
+
+if [[ -z "$token" ]]; then
+    echo "No token provided" >&2
+    exit 1
+fi
+
+if [[ -f .envrc ]] \
+    && grep -q GITHUB_PERSONAL_ACCESS_TOKEN .envrc
+then
+    sed -i '' \
+        's|^export GITHUB_PERSONAL_ACCESS_TOKEN=.*|export GITHUB_PERSONAL_ACCESS_TOKEN='"$token"'|' \
+        .envrc
+    echo "Updated token in .envrc"
+else
+    echo "export GITHUB_PERSONAL_ACCESS_TOKEN=$token" \
+        >> .envrc
+    echo "Added token to .envrc"
+fi
+
+if command -v direnv &>/dev/null; then
+    direnv allow .
+fi
