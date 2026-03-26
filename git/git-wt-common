@@ -9,7 +9,7 @@ wt_get_bare_repo() {
         return 1
     fi
     
-    if [[ ! "$bare_repo" =~ \.git$ ]] && [[ ! -f "$bare_repo/HEAD" ]]; then
+    if [[ "$(git rev-parse --is-bare-repository 2>/dev/null)" != "true" ]]; then
         echo "Error: This command requires a bare repository" >&2
         return 1
     fi

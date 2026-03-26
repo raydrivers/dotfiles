@@ -14,7 +14,8 @@ function parse_msvc() {
 
     n = split(loc, parts, ",")
     line = parts[1] + 0
-    col = (n > 1) ? parts[2] + 0 : 0
+    col = 0
+    if (n > 1) col = parts[2] + 0
 
     msg = substr(rest, close_paren + 1)
     sub(/^: /, "", msg)

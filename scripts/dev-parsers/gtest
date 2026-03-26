@@ -17,5 +17,5 @@
     getline msg
     gsub(/^[[:space:]]+/, "", msg)
 
-    emit(file, line, "[" test "] " msg)
+    emit(file, line, 1, "[" test "] " msg)
 }

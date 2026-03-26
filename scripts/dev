@@ -23,7 +23,7 @@ for script in ./dev ./dev.sh ./.dev; do
         exit_code=${PIPESTATUS[0]}
 
         if [[ $exit_code -ne 0 ]]; then
-            dev-parse $WARN_FLAG "$LOGFILE" > "$LOGFILE.qf"
+            dev-parse "$WARN_FLAG" "$LOGFILE" > "$LOGFILE.qf"
             if [[ -s "$LOGFILE.qf" ]]; then
                 echo ""
                 echo "Failed with exit code $exit_code. Opening editor..."

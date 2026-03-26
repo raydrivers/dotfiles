@@ -23,12 +23,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("UserLspConfig", {}),
     callback = function(ev)
         local bufnr = ev.buf
-        local client = vim.lsp.get_client_by_id(ev.data.client_id)
+        local client = vim.lsp.get_clients({ id = ev.data.client_id })[1]
         if not client then
             return
         end
 
-        if client.supports_method("textDocument/inlayHint") then
+        if client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
         end
 

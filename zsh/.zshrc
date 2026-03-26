@@ -6,7 +6,9 @@ setopt HIST_IGNORE_DUPS HIST_IGNORE_SPACE HIST_VERIFY SHARE_HISTORY
 autoload -U colors && colors
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
-alias ls='ls --color=auto'
+if ls --color=auto / &>/dev/null; then
+    alias ls='ls --color=auto'
+fi
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -47,8 +49,8 @@ if [[ -n "$KITTY_INSTALLATION_DIR" ]]; then
     unfunction kitty-integration
 fi
 
-eval "$(starship init zsh)"
-eval "$(direnv hook zsh)"
+command -v starship &>/dev/null && eval "$(starship init zsh)"
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
 bindkey -e  # Use emacs keymap for line editing (Ctrl+A, Ctrl+E, etc.)
 bindkey '^R' history-incremental-search-backward

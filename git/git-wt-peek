@@ -2,7 +2,7 @@
 
 set -e
 
-script_dir=$(dirname "$(readlink -f "$0")")
+script_dir=$(cd "$(dirname "$0")" && pwd -P)
 source "$script_dir/git-wt-common"
 
 if [[ $# -lt 1 ]]; then
@@ -21,11 +21,11 @@ peek_path="$dev_dir/peek"
 
 if [[ -d "$peek_path" ]]; then
     echo "Checking out '$revision' in existing peek worktree"
-    cd "$peek_path"
+    cd "$peek_path" || exit 1
     git checkout "$revision"
 else
     echo "Creating peek worktree and checking out '$revision'"
-    git worktree add "$peek_path" "$revision"
+    git worktree add --detach "$peek_path" "$revision"
 fi
 
 echo "Peek worktree ready: $peek_path"

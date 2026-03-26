@@ -18,7 +18,7 @@ fi
 
 dir="$(pwd)"
 parsers="$DOTFILES_DIR/scripts/dev-parsers"
-warn=$($INCLUDE_WARNINGS && echo 1 || echo 0)
+warn=$($INCLUDE_WARNINGS && echo 1 || echo "")
 
 for p in "$parsers"/*; do
     [[ "$(basename "$p")" == "common" ]] && continue

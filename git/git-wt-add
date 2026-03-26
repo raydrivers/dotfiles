@@ -2,7 +2,7 @@
 
 set -e
 
-script_dir=$(dirname "$(readlink -f "$0")")
+script_dir=$(cd "$(dirname "$0")" && pwd -P)
 source "$script_dir/git-wt-common"
 
 if [[ $# -lt 1 ]]; then

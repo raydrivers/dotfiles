@@ -404,7 +404,8 @@ setup_required_packages() {
             local resolved
             resolved=$(resolve_pkg "$pm" "$pkg")
             if [[ -n "$resolved" ]]; then
-                missing+=($resolved)
+                read -ra split <<< "$resolved"
+                missing+=("${split[@]}")
             fi
         fi
     done

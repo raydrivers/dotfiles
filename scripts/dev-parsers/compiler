@@ -1,10 +1,46 @@
 #!/usr/bin/awk -f
-# Parse compiler errors/warnings: file:line:col: error/warning: message
+
+function parse_compiler() {
+    str = $0
+
+    if (str ~ /^[A-Za-z]:/) {
+        prefix = substr(str, 1, 2)
+        str = substr(str, 3)
+    } else {
+        prefix = ""
+    }
+
+    n = split(str, parts, ":")
+    file = parts[1]
+    for (i = 2; i < n; i++) {
+        if (parts[i] ~ /^[0-9]+$/ && parts[i+1] ~ /^[0-9]+$/) {
+            line = parts[i] + 0
+            col = parts[i+1] + 0
+            i += 2
+            break
+        }
+        if (parts[i] ~ /^[0-9]+$/) {
+            line = parts[i] + 0
+            col = 0
+            i += 1
+            break
+        }
+        file = file ":" parts[i]
+    }
+    file = prefix file
+
+    msg = parts[i]
+    for (i = i+1; i <= n; i++) msg = msg ":" parts[i]
+    sub(/^:? /, "", msg)
+    sub(/^ /, "", msg)
+
+    emit(file, line, col, msg)
+}
 
 /^([A-Za-z]:)?[^:]+:[0-9]+:[0-9]*:? error:/ {
-    print make_absolute($0)
+    parse_compiler()
 }
 
 WARN && /^([A-Za-z]:)?[^:]+:[0-9]+:[0-9]*:? warning:/ {
-    print make_absolute($0)
+    parse_compiler()
 }
