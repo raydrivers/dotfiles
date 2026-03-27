@@ -1,0 +1,59 @@
+#!/bin/bash
+
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+. "$DOTFILES_DIR/scripts/lib/log.sh"
+
+cat <<'ART'
+
+    ╔══════════════════════════════════════╗
+    ║         *  S C R E W  *              ║
+    ║                                      ║
+    ║   !  Homebrew is known to:           ║
+    ║                                      ║
+    ║   - Auto-update everything silently  ║
+    ║   - Remove old versions behind       ║
+    ║     your back                        ║
+    ║   - Break working packages on        ║
+    ║     upgrade                          ║
+    ║   - Modify system state in ways      ║
+    ║     that are hard to reproduce       ║
+    ║                                      ║
+    ╚══════════════════════════════════════╝
+
+ART
+
+BREW_PATH="$(command -v brew 2>/dev/null)"
+if [[ -z "$BREW_PATH" ]]; then
+    log_error "brew not found in PATH"
+    exit 1
+fi
+
+BREW_INSTALL_PATH="$(command -v brew-install 2>/dev/null)"
+if [[ -n "$BREW_INSTALL_PATH" ]]; then
+    printf '%sbrew-install wrapper detected at %s%s\n' "$_D" "$BREW_INSTALL_PATH" "$_0" >&2
+    printf '%sinstall commands will be routed through it%s\n' "$_D" "$_0" >&2
+else
+    log_warn "brew-install wrapper not found"
+    log_warn "  brew will run without guardrails"
+    printf '%s  run dotfiles setup.sh to install it%s\n' "$_D" "$_0" >&2
+fi
+
+printf '\n' >&2
+printf '%sCommand: %s%s %s%s\n' "$_Y" "$_C" "$BREW_PATH" "$*" "$_0" >&2
+printf '\n' >&2
+printf '%sProceed? [y/N]:%s ' "$_R" "$_0" >&2
+read -r confirm
+
+if [[ "$confirm" != [yY] ]]; then
+    printf '%sWise choice.%s\n' "$_D" "$_0" >&2
+    exit 0
+fi
+
+if [[ -n "$BREW_INSTALL_PATH" && "$1" == "install" ]]; then
+    shift
+    printf '%sExecuting: %s %s%s\n' "$_D" "$BREW_INSTALL_PATH" "$*" "$_0" >&2
+    exec "$BREW_INSTALL_PATH" "$@"
+fi
+
+printf '%sExecuting: %s %s%s\n' "$_D" "$BREW_PATH" "$*" "$_0" >&2
+exec "$BREW_PATH" "$@"

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Print "file line" from first quickfix entry, handling Windows drive letters (C:\...)
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+. "$DOTFILES_DIR/scripts/lib/log.sh"
+
 extract_qf_location() {
     awk -F: 'NR==1{
         if ($1 ~ /^[A-Za-z]$/) print $1":"$2, $3; else print $1, $2
@@ -25,8 +27,7 @@ for script in ./dev ./dev.sh ./.dev; do
         if [[ $exit_code -ne 0 ]]; then
             dev-parse "$WARN_FLAG" "$LOGFILE" > "$LOGFILE.qf"
             if [[ -s "$LOGFILE.qf" ]]; then
-                echo ""
-                echo "Failed with exit code $exit_code. Opening editor..."
+                log_error "Failed with exit code $exit_code. Opening editor..."
                 read -r first_file first_line < <(extract_qf_location "$LOGFILE.qf")
                 nvim "$first_file" "+$first_line" -c "cgetfile $LOGFILE.qf" -c "copen" -c "wincmd p"
             fi
@@ -35,5 +36,4 @@ for script in ./dev ./dev.sh ./.dev; do
     fi
 done
 
-echo "No dev script found (tried: ./dev, ./dev.sh, ./.dev)"
-exit 1
+die "No dev script found (tried: ./dev, ./dev.sh, ./.dev)"

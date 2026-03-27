@@ -2,30 +2,26 @@
 set -e
 cd "$(dirname "$0")"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+. "$(dirname "$0")/scripts/lib/log.sh"
 
-echo -e "${GREEN}Pulling with rebase...${NC}"
+log_section "Pulling with rebase..."
 if ! git pull --rebase; then
-    echo -e "${RED}Rebase conflicts detected. Resolve them and run again.${NC}"
-    exit 1
+    die "Rebase conflicts detected. Resolve them and run again."
 fi
 
-echo -e "\n${GREEN}Running setup...${NC}"
+log_section "Running setup..."
 ./setup.sh
 
-echo -e "\n${GREEN}Running cleanup...${NC}"
+log_section "Running cleanup..."
 ./cleanup.sh
 
-echo -e "\n${GREEN}Committing...${NC}"
+log_section "Committing..."
 git add -A
 if git diff --cached --quiet; then
-    echo -e "${YELLOW}Nothing to commit${NC}"
+    log_warn "Nothing to commit"
 else
     git commit
 fi
 
-echo -e "\n${GREEN}Pushing...${NC}"
+log_section "Pushing..."
 git push
