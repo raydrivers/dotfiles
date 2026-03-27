@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib"
+. "$_lib/log.sh"
+
+if [[ $# -eq 0 ]]; then
+    die "Usage: pkg-install <package> ..."
+fi
+
+install_brew() {
+    local missing=()
+    local installed
+    installed=$(brew list --formula -1 2>/dev/null)
+
+    for pkg in "$@"; do
+        if ! echo "$installed" | grep -qx "$pkg"; then
+            missing+=("$pkg")
+        fi
+    done
+
+    if [[ ${#missing[@]} -eq 0 ]]; then
+        log_info "All packages already installed"
+        return 0
+    fi
+
+    log_info "Installing: ${missing[*]}"
+    brew install "${missing[@]}"
+}
+
+install_pacman() {
+    local missing=()
+
+    for pkg in "$@"; do
+        if ! pacman -Qi "$pkg" &>/dev/null; then
+            missing+=("$pkg")
+        fi
+    done
+
+    if [[ ${#missing[@]} -eq 0 ]]; then
+        log_info "All packages already installed"
+        return 0
+    fi
+
+    log_info "Installing: ${missing[*]}"
+    sudo pacman -S --needed --noconfirm "${missing[@]}"
+}
+
+if command -v brew &>/dev/null; then
+    install_brew "$@"
+elif command -v pacman &>/dev/null; then
+    install_pacman "$@"
+else
+    die "No supported package manager (brew, pacman)"
+fi
