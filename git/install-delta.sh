@@ -23,3 +23,12 @@ fi
 
 rm -rf "$tmp"
 echo "delta installed"
+
+themes_path="$HOME/.config/git/themes.gitconfig"
+if [[ ! -f "$themes_path" ]]; then
+    mkdir -p "$(dirname "$themes_path")"
+    curl -sL \
+        "https://raw.githubusercontent.com/dandavison/delta/main/themes.gitconfig" \
+        -o "$themes_path"
+    echo "delta themes installed"
+fi
