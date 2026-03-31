@@ -30,8 +30,7 @@
     # Amend commit without editing message
     amend = "commit --amend --no-edit"
 
-    # Bare clone with fetch refspec for remote tracking
-    clone-bare = "!f() { git clone --bare -c remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' \"$@\"; }; f"
+    clone-bare = "!git-clone-bare"
 
     ### Additional Shorthands
     ap = add -p
@@ -43,10 +42,12 @@
     up = "unpushed"
     rebup = "rebase-unpushed"
     wt = "worktree"
+    wtl = "!git-wt-list"
 
     ciaclean = "!git-ciaclean"
 
     wt-add = "!git-wt-add"
+    wt-rm = "!git-wt-rm"
     wt-peek = "!git-wt-peek"
 
     # Diff shortcuts

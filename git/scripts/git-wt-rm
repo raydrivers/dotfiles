@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: git wt-rm <branch-or-path>"
+    exit 1
+fi
+
+arg="$1"
+
+wt_path=$(git worktree list --porcelain \
+    | awk -v arg="$arg" '
+        /^worktree / { path = substr($0, 10) }
+        /^branch /   { branch = substr($0, 8)
+                        sub("refs/heads/", "", branch) }
+        /^$/ {
+            if (path == arg) { print path; exit }
+            if (branch == arg) { print path; exit }
+        }
+    ')
+
+if [[ -z "$wt_path" ]]; then
+    echo "Error: no worktree matches '$arg'" >&2
+    exit 1
+fi
+
+git worktree remove "$wt_path"
+echo "Removed: $wt_path"

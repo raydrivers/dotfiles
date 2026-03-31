@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+if [[ $# -lt 2 ]]; then
+    echo "Usage: git clone-bare <url> <worktree-base>"
+    exit 1
+fi
+
+url="$1"
+worktree_base="$2"
+repo_name=$(basename "$url" .git)
+bare_dir="$repo_name.git"
+
+git clone --bare "$url" "$bare_dir"
+cd "$bare_dir"
+
+git config remote.origin.fetch \
+    "+refs/heads/*:refs/remotes/origin/*"
+git fetch
+
+git config worktree.base "$worktree_base"
+mkdir -p "$worktree_base"
+
+echo "Bare repo: $(pwd)"
+echo "Worktree base: $worktree_base"
