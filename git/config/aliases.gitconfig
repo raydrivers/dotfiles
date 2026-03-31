@@ -49,6 +49,7 @@
     wt-add = "!git-wt-add"
     wt-rm = "!git-wt-rm"
     wt-peek = "!git-wt-peek"
+    wt-clean = "!git-wt-clean"
 
     # Diff shortcuts
     d = "diff"

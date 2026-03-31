@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+main_branch=$(git config --default main init.defaultBranch)
+
+git fetch --prune --quiet
+
+removable=()
+
+while IFS=$'\t' read -r path branch; do
+    [[ "$branch" == "(bare)" ]] && continue
+    [[ "$branch" == "$main_branch" ]] && continue
+
+    if ! git merge-base --is-ancestor "$branch" "origin/$main_branch" 2>/dev/null; then
+        continue
+    fi
+
+    if [[ -n $(git -C "$path" status --porcelain 2>/dev/null) ]]; then
+        echo "Skipping $branch (dirty): $path"
+        continue
+    fi
+
+    removable+=("$path"$'\t'"$branch")
+done < <(git worktree list --porcelain | awk '
+    /^worktree / { path = substr($0, 10) }
+    /^branch /   { branch = substr($0, 8)
+                    sub("refs/heads/", "", branch) }
+    /^bare/      { branch = "(bare)" }
+    /^$/ {
+        if (path != "") print path "\t" branch
+        path = ""; branch = ""
+    }
+    END {
+        if (path != "") print path "\t" branch
+    }
+')
+
+if [[ ${#removable[@]} -eq 0 ]]; then
+    echo "No worktrees to clean."
+    exit 0
+fi
+
+echo "Will remove:"
+for entry in "${removable[@]}"; do
+    IFS=$'\t' read -r path branch <<< "$entry"
+    printf "  %-40s %s\n" "$path" "$branch"
+done
+
+printf "\nProceed? [y/N] "
+read -r answer
+[[ "$answer" =~ ^[Yy]$ ]] || exit 0
+
+for entry in "${removable[@]}"; do
+    IFS=$'\t' read -r path branch <<< "$entry"
+    git worktree remove "$path"
+    git branch -d "$branch"
+    echo "Removed: $branch ($path)"
+done

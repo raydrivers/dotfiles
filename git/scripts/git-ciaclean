@@ -3,7 +3,7 @@
 usage() {
     echo "Usage: git ciaclean [--dry] [--me]"
     echo ""
-    echo "Delete local branches merged into origin/main."
+    echo "Delete local branches merged into origin/<main>."
     echo ""
     echo "Options:"
     echo "  --dry   Show branches that would be deleted"
@@ -22,10 +22,12 @@ for arg in "$@"; do
     esac
 done
 
+main_branch=$(git config --default main init.defaultBranch)
+
 git fetch --prune --quiet
 
-branches=$(git branch --merged origin/main \
-    | grep -vE "^\s*(\*|main|master|develop)")
+branches=$(git branch --merged "origin/$main_branch" \
+    | grep -vE "^\s*(\*|$main_branch|develop)")
 
 if $me; then
     email=$(git config user.email)
