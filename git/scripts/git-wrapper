@@ -1,0 +1,21 @@
+#!/bin/sh
+# Wrapper around git to sanitize dangerous input.
+# Sourced as a shell function so `git` calls route through it.
+#
+# Blocked:
+#   git push --force / -f  (use `git force-push` instead)
+
+case "$1" in
+    push)
+        for arg in "$@"; do
+            case "$arg" in
+                --force|-f)
+                    echo "Use 'git force-push' (--force-with-lease) instead" >&2
+                    return 1 2>/dev/null || exit 1 ;;
+                --)
+                    break ;;
+            esac
+        done ;;
+esac
+
+command git "$@"

@@ -30,6 +30,8 @@ brew() {
     fi
 }
 
+git() { . git-wrapper; }
+
 [ -f /nix/var/nix/profiles/default/etc/profile.d/nix.sh ] && source /nix/var/nix/profiles/default/etc/profile.d/nix.sh
 [ -f ~/.posix-profile ] && source ~/.posix-profile
 
