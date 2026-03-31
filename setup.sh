@@ -14,6 +14,8 @@ detect_environment() {
         echo "wsl"
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo "linux"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "mingw"* ]]; then
+        echo "windows"
     else
         echo "unknown"
     fi
@@ -39,6 +41,9 @@ setup_scripts() {
 }
 
 setup_kitty() {
+    if [[ "$ENV_TYPE" == "windows" ]]; then
+        return 0
+    fi
     log_section "Setting up Kitty..."
     link_config kitty
 }
@@ -66,7 +71,9 @@ setup_configs() {
             "$HOME/.config/starship.toml"
     fi
 
-    link_config tmux
+    if [[ "$ENV_TYPE" != "windows" ]]; then
+        link_config tmux
+    fi
 }
 
 setup_linux_desktop() {
@@ -92,9 +99,15 @@ setup_linux_desktop() {
 }
 
 setup_shell_configs() {
-    create_link \
-        "$DOTFILES_DIR/zsh/.zshrc" \
-        "$HOME/.zshrc"
+    if [[ "$ENV_TYPE" == "windows" ]]; then
+        create_link \
+            "$DOTFILES_DIR/bash/.bashrc" \
+            "$HOME/.bashrc"
+    else
+        create_link \
+            "$DOTFILES_DIR/zsh/.zshrc" \
+            "$HOME/.zshrc"
+    fi
 }
 
 setup_macos() {

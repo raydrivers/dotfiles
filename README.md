@@ -28,11 +28,12 @@ Optional tools (setup skips what's missing):
 | git config           | yes   | yes   | yes | yes                |
 | git scripts          | yes   | yes   | yes | yes                |
 | delta install        | yes   | yes   | -   | yes                |
-| utility scripts      | yes   | yes   | yes | -                  |
-| nvim config          | yes   | yes   | yes | -                  |
+| utility scripts      | yes   | yes   | yes | yes                |
+| nvim config          | yes   | yes   | yes | yes                |
 | kitty config         | yes   | yes   | yes | -                  |
 | tmux config          | yes   | yes   | yes | -                  |
-| starship config      | yes   | yes   | yes | -                  |
+| starship config      | yes   | yes   | yes | yes                |
+| bash config          | -     | -     | -   | yes                |
 | zsh config           | yes   | yes   | yes | -                  |
 | Homebrew completions | yes   | -     | -   | -                  |
 | Raycast config       | yes   | -     | -   | -                  |
@@ -43,11 +44,7 @@ Linux desktop features require `./setup.sh --desktop`.
 
 ## Not yet handled
 
-- Windows: no config linking (`~/.config` layout not
-  used by most Windows tools)
-- Windows: `setup.sh` detects "unknown" environment
-  and runs nothing beyond git setup
 - WSL: delta not auto-installed (runs Linux binaries
   but install path assumes native Linux)
-- Symlinks on Windows Git Bash require admin or
-  Developer Mode enabled
+- Symlinks on Windows Git Bash require Developer Mode
+  enabled (Settings > Developer settings)

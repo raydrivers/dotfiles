@@ -17,9 +17,7 @@ git_config_add_once() {
 log_section "Setting up Git..."
 
 mkdir -p "$HOME/.config/git" "$HOME/.local/bin"
-rm -f "$HOME/.config/git/custom"
-ln -sf "$DOTFILES_DIR/git/config" "$HOME/.config/git/custom"
-log_ok "$HOME/.config/git/custom"
+create_link "$DOTFILES_DIR/git/config" "$HOME/.config/git/custom"
 
 git_config_add_once include.path "~/.config/git/custom/common.gitconfig"
 

@@ -13,6 +13,7 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
+export MSYS=winsymlinks:nativestrict
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR=nvim
 export DOTFILES_DIR="$HOME/dotfiles"
