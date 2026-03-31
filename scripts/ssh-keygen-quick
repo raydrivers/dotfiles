@@ -1,0 +1,125 @@
+#!/bin/bash
+set -euo pipefail
+
+_self="${BASH_SOURCE[0]}"
+[[ -L "$_self" ]] && _self="$(readlink "$_self")"
+_lib="$(cd "$(dirname "$_self")" && pwd)/lib"
+. "$_lib/log.sh"
+
+usage() {
+    cat >&2 <<'EOF'
+Usage: ssh-keygen-quick [options] <label>
+
+Options:
+  -t TYPE  Key type: ed25519, ecdsa, rsa (default: ed25519)
+  -b BITS  Key bits, rsa only (default: 4096)
+  -d DIR   Output directory (default: ~/.ssh)
+  -a       Add key to ssh-agent
+  -c       Copy public key to clipboard
+  -g       Add public key to GitHub
+  -h       Show this help
+EOF
+    exit 1
+}
+
+clip_copy() {
+    if command -v pbcopy &>/dev/null; then
+        pbcopy
+    elif command -v xclip &>/dev/null; then
+        xclip -selection clipboard
+    elif command -v xsel &>/dev/null; then
+        xsel --clipboard --input
+    else
+        return 1
+    fi
+}
+
+open_url() {
+    if command -v open &>/dev/null; then
+        open "$1"
+    elif command -v xdg-open &>/dev/null; then
+        xdg-open "$1"
+    elif command -v wslview &>/dev/null; then
+        wslview "$1"
+    else
+        log_info "Open this URL manually:"
+        log_info "  $1"
+    fi
+}
+
+type=ed25519
+bits=
+dir="$HOME/.ssh"
+add_agent=false
+copy_clip=false
+add_github=false
+
+while getopts "t:b:d:acgh" opt; do
+    case "$opt" in
+        t) type=$OPTARG ;;
+        b) bits=$OPTARG ;;
+        d) dir=$OPTARG ;;
+        a) add_agent=true ;;
+        c) copy_clip=true ;;
+        g) add_github=true ;;
+        h) usage ;;
+        *) usage ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+[[ $# -lt 1 ]] && die "Usage: ssh-keygen-quick [options] <label>"
+
+label=$1
+
+case "$type" in
+    ed25519|ecdsa|rsa) ;;
+    *) die "Unsupported key type: $type (use ed25519, ecdsa, rsa)" ;;
+esac
+
+if [[ "$type" == rsa ]]; then
+    bits=${bits:-4096}
+elif [[ -n "$bits" ]]; then
+    die "-b flag is only valid for rsa keys"
+fi
+
+keypath="$dir/$label"
+pubpath="$dir/$label.pub"
+
+[[ -e "$keypath" ]] && die "Key already exists: $keypath"
+[[ -e "$pubpath" ]] && die "Key already exists: $pubpath"
+
+mkdir -p "$dir"
+
+keygen_args=(-t "$type" -f "$keypath" -C "$label" -N "")
+[[ -n "${bits:-}" ]] && keygen_args+=(-b "$bits")
+ssh-keygen "${keygen_args[@]}"
+
+if $add_agent; then
+    ssh-add "$keypath"
+    log_ok "Added to ssh-agent"
+fi
+
+if $copy_clip; then
+    if clip_copy < "$pubpath"; then
+        log_ok "Public key copied to clipboard"
+    else
+        die "No clipboard tool found (pbcopy, xclip, xsel)"
+    fi
+fi
+
+if $add_github; then
+    if command -v gh &>/dev/null; then
+        gh ssh-key add "$pubpath" --title "$label"
+        log_ok "Added to GitHub"
+    else
+        log_info "gh CLI not found, opening GitHub manually"
+        if clip_copy < "$pubpath"; then
+            log_ok "Public key copied to clipboard"
+        fi
+        open_url "https://github.com/settings/ssh/new"
+    fi
+fi
+
+log_info ""
+ssh-keygen -lf "$pubpath"
