@@ -144,7 +144,8 @@ setup_ai() {
 
 PACKAGES=(
     zsh tmux direnv starship neovim
-    ripgrep fd node tree-sitter
+    ripgrep fd sd node tree-sitter
+    htop curl wget tree jq
 )
 
 setup_packages() {
