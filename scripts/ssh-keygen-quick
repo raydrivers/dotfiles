@@ -13,6 +13,7 @@ Usage: ssh-keygen-quick [options] <label>
 Options:
   -t TYPE  Key type: ed25519, ecdsa, rsa (default: ed25519)
   -b BITS  Key bits, rsa only (default: 4096)
+  -e EMAIL Email comment on the key (default: label)
   -d DIR   Output directory (default: ~/.ssh)
   -a       Add key to ssh-agent
   -c       Copy public key to clipboard
@@ -52,12 +53,14 @@ bits=
 dir="$HOME/.ssh"
 add_agent=false
 copy_clip=false
+email=
 add_github=false
 
-while getopts "t:b:d:acgh" opt; do
+while getopts "t:b:e:d:acgh" opt; do
     case "$opt" in
         t) type=$OPTARG ;;
         b) bits=$OPTARG ;;
+        e) email=$OPTARG ;;
         d) dir=$OPTARG ;;
         a) add_agent=true ;;
         c) copy_clip=true ;;
@@ -83,20 +86,25 @@ elif [[ -n "$bits" ]]; then
     die "-b flag is only valid for rsa keys"
 fi
 
-keypath="$dir/$label"
-pubpath="$dir/$label.pub"
+keypath="$dir/id_$label"
+pubpath="$dir/id_$label.pub"
 
 [[ -e "$keypath" ]] && die "Key already exists: $keypath"
 [[ -e "$pubpath" ]] && die "Key already exists: $pubpath"
 
 mkdir -p "$dir"
 
-keygen_args=(-t "$type" -f "$keypath" -C "$label" -N "")
+comment=${email:-$label}
+keygen_args=(-t "$type" -f "$keypath" -C "$comment" -N "")
 [[ -n "${bits:-}" ]] && keygen_args+=(-b "$bits")
 ssh-keygen "${keygen_args[@]}"
 
 if $add_agent; then
-    ssh-add "$keypath"
+    if [[ "$(uname -s)" == Darwin ]]; then
+        ssh-add --apple-use-keychain "$keypath"
+    else
+        ssh-add "$keypath"
+    fi
     log_ok "Added to ssh-agent"
 fi
 
