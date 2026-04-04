@@ -145,6 +145,48 @@ setup_macos() {
     fi
 }
 
+setup_windows_terminal() {
+    if [[ "$ENV_TYPE" != "windows" ]]; then
+        return 0
+    fi
+    log_section "Windows Terminal"
+
+    local wt_dir="$LOCALAPPDATA/Packages"
+    wt_dir+="/Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+    wt_dir+="/LocalState"
+    local settings="$wt_dir/settings.json"
+
+    if [[ ! -f "$settings" ]]; then
+        log_warn "Windows Terminal settings not found"
+        return 0
+    fi
+
+    local action_id="User.sendInput.CtrlSpace"
+    if jq -e ".actions[]? | select(.id == \"$action_id\")" \
+        "$settings" >/dev/null 2>&1
+    then
+        log_ok "Ctrl+Space keybinding already set"
+        return 0
+    fi
+
+    local tmp="$settings.tmp"
+    jq --arg id "$action_id" '
+        .actions += [{
+            "command": {
+                "action": "sendInput",
+                "input": "\u001b[32;5u"
+            },
+            "id": $id
+        }]
+        | .keybindings += [{
+            "id": $id,
+            "keys": "ctrl+space"
+        }]
+    ' "$settings" > "$tmp" && mv "$tmp" "$settings"
+
+    log_ok "Ctrl+Space sends CSI u for Neovim"
+}
+
 setup_ai() {
     local ai_setup="$DOTFILES_DIR/ai/setup.sh"
     if [[ ! -f "$ai_setup" ]]; then
@@ -175,6 +217,7 @@ ALL_MODULES=(
     shell_configs
     linux_desktop
     macos
+    windows_terminal
     ai
 )
 
