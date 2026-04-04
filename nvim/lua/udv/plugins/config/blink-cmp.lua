@@ -2,8 +2,8 @@ require('blink.cmp').setup({
     completion = {
         trigger = {
             show_in_snippet = false,
-            show_on_keyword = false,
-            show_on_trigger_character = false,
+            show_on_keyword = true,
+            show_on_trigger_character = true,
         },
         documentation = {
             auto_show = false,
@@ -47,6 +47,7 @@ require('blink.cmp').setup({
         ["<C-Space>"] = { "show" },
         ["<C-e>"] = { "hide" },
         ["<CR>"] = { "accept", "fallback" },
+        ["<C-y>"] = { "accept", "fallback" },
         ["<Tab>"] = { "snippet_forward", "fallback" },
         ["<S-Tab>"] = { "snippet_backward", "fallback" },
         ["<C-k>"] = { "snippet_forward", "fallback" },
