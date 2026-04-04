@@ -34,3 +34,14 @@ else
 fi
 
 echo "Worktree: $target"
+
+# Initialize submodules in the new worktree.
+# Worktrees share the bare repo's modules/ directory, but stale entries
+# from other worktrees can leave broken .git pointers. Deinit first to
+# clear any stale state, then init fresh.
+if [[ -f "$target/.gitmodules" ]]; then
+    echo "Initializing submodules..."
+    git -C "$target" submodule deinit --all -f 2>/dev/null || true
+    git -C "$target" submodule update --init --recursive
+    echo "Submodules ready."
+fi
