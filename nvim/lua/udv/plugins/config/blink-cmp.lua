@@ -48,7 +48,7 @@ require('blink.cmp').setup({
         ["<C-e>"] = { "hide" },
         ["<CR>"] = { "accept", "fallback" },
         ["<C-y>"] = { "accept", "fallback" },
-        ["<Tab>"] = { "snippet_forward", "fallback" },
+        ["<Tab>"] = { "accept", "snippet_forward", "fallback" },
         ["<S-Tab>"] = { "snippet_backward", "fallback" },
         ["<C-k>"] = { "snippet_forward", "fallback" },
         ["<C-j>"] = { "snippet_backward", "fallback" },
