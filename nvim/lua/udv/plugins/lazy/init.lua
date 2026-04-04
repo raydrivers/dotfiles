@@ -155,6 +155,13 @@ local treesitter = add_plugin {
 }
 
 add_plugin {
+    "abecodes/tabout.nvim",
+    name = "tabout",
+    dependencies = { treesitter },
+    event = "InsertEnter",
+}
+
+add_plugin {
     "stevearc/oil.nvim",
     name = "oil",
     dependencies = {
