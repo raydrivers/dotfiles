@@ -187,6 +187,29 @@ setup_windows_terminal() {
     log_ok "Ctrl+Space sends CSI u for Neovim"
 }
 
+setup_windows_tools() {
+    if [[ "$ENV_TYPE" != "windows" ]]; then
+        return 0
+    fi
+    log_section "Windows tools (cargo)"
+
+    export PATH="$HOME/.cargo/bin:$PATH"
+
+    if ! command -v cargo &>/dev/null; then
+        log_info "Installing Rust via rustup..."
+        curl --proto '=https' --tlsv1.2 -sSf \
+            https://sh.rustup.rs | sh -s -- -y
+    fi
+    log_ok "cargo: $(cargo --version)"
+
+    if command -v tree-sitter &>/dev/null; then
+        log_ok "tree-sitter-cli already installed"
+    else
+        log_info "Installing tree-sitter-cli..."
+        cargo install tree-sitter-cli
+    fi
+}
+
 setup_ai() {
     local ai_setup="$DOTFILES_DIR/ai/setup.sh"
     if [[ ! -f "$ai_setup" ]]; then
@@ -213,6 +236,7 @@ ALL_MODULES=(
     scripts
     kitty
     wsl_fixes
+    windows_tools
     configs
     shell_configs
     linux_desktop

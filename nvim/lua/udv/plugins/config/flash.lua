@@ -11,11 +11,11 @@ flash.setup({
     },
 })
 
-vim.keymap.set({ "n", "x", "o" }, "s", function()
+vim.keymap.set({ "n", "x", "o" }, "<CR>", function()
     flash.jump()
 end, { desc = "Flash" })
 
-vim.keymap.set({ "n", "x", "o" }, "S", function()
+vim.keymap.set({ "n", "x", "o" }, "<S-CR>", function()
     flash.treesitter()
 end, { desc = "Flash Treesitter" })
 

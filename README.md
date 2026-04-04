@@ -42,9 +42,16 @@ Optional tools (setup skips what's missing):
 
 Linux desktop features require `./setup.sh --desktop`.
 
+## Windows notes
+
+- Symlinks on Windows Git Bash require Developer Mode
+  enabled (Settings > Developer settings)
+- Setup auto-installs Rust (via rustup) and uses cargo
+  for tools unavailable through package managers
+  (tree-sitter-cli). Run `./setup.sh windows_tools`
+  to install manually.
+
 ## Not yet handled
 
 - WSL: delta not auto-installed (runs Linux binaries
   but install path assumes native Linux)
-- Symlinks on Windows Git Bash require Developer Mode
-  enabled (Settings > Developer settings)
