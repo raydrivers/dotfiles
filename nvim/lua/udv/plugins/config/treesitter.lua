@@ -1,8 +1,11 @@
+vim.env.CC = "cc -O2"
+
 local parsers = {
     "asm", "awk", "c", "cpp", "objc", "perl",
     "cmake", "make", "cuda", "go", "vim", "vimdoc",
     "json", "bash", "python", "html", "css",
-    "javascript", "php", "doxygen", "glsl", "hlsl",
+    "javascript", "typescript", "tsx", "php",
+    "doxygen", "glsl", "hlsl",
     "java", "kotlin", "nix", "sql", "yaml", "toml",
     "zig", "rust", "lua", "luadoc",
     "markdown", "markdown_inline", "gn"

@@ -19,11 +19,12 @@ return {
             },
         },
     },
-    root_dir = function(fname)
+    root_dir = function(bufnr, on_dir)
+        local path = vim.api.nvim_buf_get_name(bufnr)
         local found = vim.fs.find({
             "pyproject.toml", "setup.py", "setup.cfg",
             "requirements.txt", ".git",
-        }, { upward = true, path = fname })[1]
-        return found and vim.fs.dirname(found)
+        }, { upward = true, path = path })[1]
+        on_dir(found and vim.fs.dirname(found) or nil)
     end,
 }
