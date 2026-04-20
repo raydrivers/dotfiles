@@ -50,6 +50,10 @@ On apt/dnf, `fd-find` installs as `fdfind`. Symlink it:
 
     npm i -g tree-sitter-cli
 
+**typescript-language-server**:
+
+    npm i -g typescript typescript-language-server
+
 **kotlin-lsp**:
 
     # Download from https://download-cdn.jetbrains.com/kotlin-lsp/
