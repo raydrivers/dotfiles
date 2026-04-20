@@ -54,3 +54,9 @@
     # Diff shortcuts
     d = "diff"
     sd = "diff --staged"
+    dr = "diff --diff-algorithm=patience"
+    sdr = "diff --staged --diff-algorithm=patience"
+    dc = "diff --diff-algorithm=myers"
+    sdc = "diff --staged --diff-algorithm=myers"
+    de = "diff --diff-algorithm=minimal"
+    sde = "diff --staged --diff-algorithm=minimal"

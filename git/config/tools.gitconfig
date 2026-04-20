@@ -1,6 +1,8 @@
 [diff]
     tool = nvim
-    colorMoved = default
+    colorMoved = zebra
+    colorMovedWS = allow-indentation-change
+    algorithm = histogram
 
 [difftool "nvim"]
     cmd = nvim -d "$LOCAL" "$REMOTE"
