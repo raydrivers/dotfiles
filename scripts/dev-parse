@@ -2,11 +2,11 @@
 # Parse build/test logs into quickfix format
 # Usage: dev-parse [-w] <logfile>
 
-INCLUDE_WARNINGS=false
+warn=
 
 while getopts "w" opt; do
     case $opt in
-        w) INCLUDE_WARNINGS=true ;;
+        w) warn=1 ;;
     esac
 done
 shift $((OPTIND - 1))
@@ -18,9 +18,12 @@ fi
 
 dir="$(pwd)"
 parsers="$DOTFILES_DIR/scripts/dev-parsers"
-warn=$($INCLUDE_WARNINGS && echo 1 || echo "")
 
 for p in "$parsers"/*; do
     [[ "$(basename "$p")" == "common" ]] && continue
-    awk -v DIR="$dir" -v WARN="$warn" -f "$parsers/common" -f "$p" "$1"
+    awk \
+        -v DIR="$dir" \
+        -v WARN="$warn" \
+        -f "$parsers/common" \
+        -f "$p" "$1"
 done

@@ -1,20 +1,10 @@
 #!/bin/bash
-set -euo pipefail
-
-_self="${BASH_SOURCE[0]}"
-[[ -L "$_self" ]] && _self="$(readlink "$_self")"
-_lib="$(cd "$(dirname "$_self")" && pwd)/lib"
-. "$_lib/log.sh"
 
 usage() {
     cat >&2 <<'EOF'
-Usage: ssh-keygen-quick [options] <label>
+Usage: ssh-keygen-quick [-a] [-c] [-g] <label>
 
 Options:
-  -t TYPE  Key type: ed25519, ecdsa, rsa (default: ed25519)
-  -b BITS  Key bits, rsa only (default: 4096)
-  -e EMAIL Email comment on the key (default: label)
-  -d DIR   Output directory (default: ~/.ssh)
   -a       Add key to ssh-agent
   -c       Copy public key to clipboard
   -g       Add public key to GitHub
@@ -43,91 +33,77 @@ open_url() {
     elif command -v wslview &>/dev/null; then
         wslview "$1"
     else
-        log_info "Open this URL manually:"
-        log_info "  $1"
+        echo "Open this URL manually:"
+        echo "  $1"
     fi
 }
 
-type=ed25519
-bits=
 dir="$HOME/.ssh"
-add_agent=false
-copy_clip=false
-email=
-add_github=false
+add_agent=
+copy_clip=
+add_github=
 
-while getopts "t:b:e:d:acgh" opt; do
+while getopts "acgh" opt; do
     case "$opt" in
-        t) type=$OPTARG ;;
-        b) bits=$OPTARG ;;
-        e) email=$OPTARG ;;
-        d) dir=$OPTARG ;;
-        a) add_agent=true ;;
-        c) copy_clip=true ;;
-        g) add_github=true ;;
+        a) add_agent=1 ;;
+        c) copy_clip=1 ;;
+        g) add_github=1 ;;
         h) usage ;;
         *) usage ;;
     esac
 done
 shift $((OPTIND - 1))
 
-[[ $# -lt 1 ]] && die "Usage: ssh-keygen-quick [options] <label>"
+if [[ $# -lt 1 ]]; then
+    usage
+fi
 
 label=$1
+default_email="$(git config user.email)"
 
-case "$type" in
-    ed25519|ecdsa|rsa) ;;
-    *) die "Unsupported key type: $type (use ed25519, ecdsa, rsa)" ;;
-esac
-
-if [[ "$type" == rsa ]]; then
-    bits=${bits:-4096}
-elif [[ -n "$bits" ]]; then
-    die "-b flag is only valid for rsa keys"
+read -rp "Email [$default_email]: " email
+if [[ -z "$email" ]]; then
+    email="$default_email"
 fi
 
 keypath="$dir/id_$label"
 pubpath="$dir/id_$label.pub"
 
-[[ -e "$keypath" ]] && die "Key already exists: $keypath"
-[[ -e "$pubpath" ]] && die "Key already exists: $pubpath"
+if [[ -e "$keypath" ]] || [[ -e "$pubpath" ]]; then
+    echo "Key already exists: $keypath" >&2
+    exit 1
+fi
 
 mkdir -p "$dir"
 
-comment=${email:-$label}
-keygen_args=(-t "$type" -f "$keypath" -C "$comment" -N "")
-[[ -n "${bits:-}" ]] && keygen_args+=(-b "$bits")
-ssh-keygen "${keygen_args[@]}"
+ssh-keygen -t ed25519 -f "$keypath" -C "$email" -N ""
 
-if $add_agent; then
+if [[ -n "$add_agent" ]]; then
     if [[ "$(uname -s)" == Darwin ]]; then
         ssh-add --apple-use-keychain "$keypath"
     else
         ssh-add "$keypath"
     fi
-    log_ok "Added to ssh-agent"
+    echo "+ ssh-agent"
 fi
 
-if $copy_clip; then
+if [[ -n "$copy_clip" ]]; then
     if clip_copy < "$pubpath"; then
-        log_ok "Public key copied to clipboard"
+        echo "+ clipboard"
     else
-        die "No clipboard tool found (pbcopy, xclip, xsel)"
+        echo "No clipboard tool found" >&2
+        exit 1
     fi
 fi
 
-if $add_github; then
+if [[ -n "$add_github" ]]; then
     if command -v gh &>/dev/null; then
         gh ssh-key add "$pubpath" --title "$label"
-        log_ok "Added to GitHub"
+        echo "+ GitHub"
     else
-        log_info "gh CLI not found, opening GitHub manually"
-        if clip_copy < "$pubpath"; then
-            log_ok "Public key copied to clipboard"
-        fi
+        clip_copy < "$pubpath"
         open_url "https://github.com/settings/ssh/new"
     fi
 fi
 
-log_info ""
 ssh-keygen -lf "$pubpath"

@@ -1,27 +1,12 @@
 #!/bin/bash
-set -e
 cd "$(dirname "$0")"
 
-. "$(dirname "$0")/scripts/lib/log.sh"
+git pull --rebase
 
-log_section "Pulling with rebase..."
-if ! git pull --rebase; then
-    die "Rebase conflicts detected. Resolve them and run again."
-fi
-
-log_section "Running setup..."
 ./setup.sh
-
-log_section "Running cleanup..."
 ./cleanup.sh
 
-log_section "Committing..."
 git add -A
-if git diff --cached --quiet; then
-    log_warn "Nothing to commit"
-else
-    git commit
-fi
+git diff --cached --quiet || git commit
 
-log_section "Pushing..."
 git push
