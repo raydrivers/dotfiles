@@ -2,7 +2,7 @@ local luasnip = require("luasnip")
 local luasnip_util_types = require("luasnip.util.types")
 local luasnip_loaders_from_lua = require("luasnip.loaders.from_lua")
 
-local snippets_directory_path = vim.fn.stdpath("config") .. "/lua/snippets"
+local snippets_directory_path = vim.fn.stdpath("config") .. "/lua/udv/snippets"
 local extension_base_priority = 300
 local extension_priority_increase = 1
 
@@ -104,4 +104,3 @@ vim.keymap.set(modes, "<C-c>", function()
     end
     return "<C-c>"
 end, { expr = true, silent = true })
-

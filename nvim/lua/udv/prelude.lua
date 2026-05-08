@@ -4,4 +4,5 @@ if vim.fn.has("nvim-0.11") == 0 then
   return
 end
 
-require("udv.prelude.vimrc")
+local load_vimrc_cmd = "source " .. vim.fn.stdpath("config") .. "/vimrc.vim"
+vim.cmd(load_vimrc_cmd)

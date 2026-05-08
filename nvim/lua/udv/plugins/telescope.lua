@@ -19,4 +19,3 @@ telescope.setup(config)
 
 telescope.load_extension("ui-select")
 telescope.load_extension("fzf")
-

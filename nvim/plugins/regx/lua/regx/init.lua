@@ -49,7 +49,6 @@ function regx:open_current_word()
     end
 end
 
---- Adds new matcher
 ---@param pattern Pattern
 function regx:add(pattern)
     table.insert(self.patterns, pattern)

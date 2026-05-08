@@ -1,5 +1,6 @@
 require("udv.prelude")
 
-require("udv.pkgs")
-require("udv.options")
+require("udv.lazy")
 
+require("udv.options")
+require("udv.remaps")

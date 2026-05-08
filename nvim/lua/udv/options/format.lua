@@ -23,9 +23,6 @@ vim.keymap.set("n", "<leader>fm", function()
 
     if ft == "python" and vim.fn.executable("ruff") == 1 then
         ruff_format_buffer()
-    elseif vim.tbl_contains(filetypes.C_CPP_FILETYPES, ft)
-        and vim.fn.executable("clang-format") == 1 then
-        vim.lsp.buf.format({ timeout_ms = 1000 })
     else
         vim.lsp.buf.format({ timeout_ms = 1000 })
     end

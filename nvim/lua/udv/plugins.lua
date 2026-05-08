@@ -1,41 +1,20 @@
-local safe_require = require("udv.prelude.util").safe_require
-
 local LOAD_FIRST_PRIORITY = 1000
 
 local CONFIG_DIR = vim.fn.stdpath("config")
-local THEMES_CONFIG_DIR = CONFIG_DIR .. "/themes"
 local LOCAL_PLUGINS_DIR = CONFIG_DIR .. "/plugins"
-
-local BASE_PLUGINS_PATH = "udv.plugins"
 
 local plugins = {};
 
-local function plugin_config_module_name(module_type, plugin_info)
-    return BASE_PLUGINS_PATH .. '.' .. module_type .. '.' .. plugin_info.name
-end
-
 local function add_plugin(plugin_info)
-    if plugin_info.disabled then
-        return nil
-    end
-
-    local plugin_init_module = plugin_config_module_name("init", plugin_info)
-    local plugin_config_module = plugin_config_module_name("config", plugin_info)
-
-    local plugin_generated = {
-        config = function()
-            safe_require(plugin_config_module)
-        end,
-        init = function()
-            safe_require(plugin_init_module)
-        end,
-    }
-
-    local plugin = vim.tbl_extend("error", plugin_info, plugin_generated)
-
-    table.insert(plugins, plugin)
+    table.insert(plugins, plugin_info)
 
     return plugin_info
+end
+
+local function config(name)
+    return function()
+        require("udv.plugins." .. name)
+    end
 end
 
 local function add_local_plugin(plugin_info)
@@ -55,73 +34,39 @@ local function add_local_plugin(plugin_info)
     return add_plugin(plugin)
 end
 
+local not_vscode = function()
+    return not vim.g.vscode
+end
+
 ---- Base plugins
-add_plugin {
+local plenary = add_plugin {
     "nvim-lua/plenary.nvim",
     name = "plenary",
-    priority = LOAD_FIRST_PRIORITY,
     lazy = true,
 }
 
 ---- Icons/UI
 local nvim_web_devicons_plugin = {
-    "kyazdani42/nvim-web-devicons",
+    "nvim-tree/nvim-web-devicons",
 }
 
-local mini_plugin = {
-    "echasnovski/mini.nvim",
+local mini_plugin = add_plugin {
+    "nvim-mini/mini.nvim",
     version = "*",
-    config = function()
-        require("udv.plugins.config.mini-pairs")
-    end,
-}
-
-local vim_devicons_plugin = {
-    "ryanoasis/vim-devicons",
+    config = config("mini"),
 }
 
 ---- Local plugins
 add_local_plugin {
-    name = "regx"
+    name = "regx",
+    config = config("regx"),
 }
 
 ---- Themes
-local function themes_from_directory(directory)
-    local themes = {}
-
-    local uv = vim.uv
-    local handle = uv.fs_scandir(directory)
-
-    if not handle then
-        error("Failed to open directory: " .. directory)
-    end
-
-    while true do
-        local name, type = uv.fs_scandir_next(handle)
-        if not name then
-            break
-        end
-
-        if type == "directory" then
-            table.insert(themes, {
-                dir = directory .. "/" .. name,
-                lazy = false, -- Otherwise telescope won't find them
-            })
-        end
-    end
-
-    return themes
-end
-
-local themes = themes_from_directory(THEMES_CONFIG_DIR)
-table.insert(themes, { "ramojus/mellifluous.nvim", lazy = false })
-table.insert(themes, { "RRethy/base16-nvim", lazy = false })
-
 add_plugin {
-    "rktjmp/lush.nvim",
-    themes,
-    name = "lush",
-    priority = LOAD_FIRST_PRIORITY,
+    "RRethy/base16-nvim",
+    name = "base16",
+    lazy = false,
 }
 
 ---- Core plugins
@@ -129,29 +74,33 @@ add_plugin {
     "ThePrimeagen/harpoon",
     name = "harpoon",
     branch = "harpoon2",
-    cond = function()
-        return not vim.g.vscode
-    end,
+    config = config("harpoon"),
+    dependencies = { plenary },
+    cond = not_vscode,
 }
 
 add_plugin {
     "folke/flash.nvim",
     name = "flash",
     event = "VeryLazy",
+    config = config("flash"),
 }
 
-local treesitter_extension_textobjects = {
+local treesitter_textobjects = {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
 }
+
 local treesitter = add_plugin {
     "nvim-treesitter/nvim-treesitter",
     name = "treesitter",
-    version = false, -- It was said that last release is way too old and doesn't work on windows
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
+    config = config("treesitter"),
     dependencies = {
-        treesitter_extension_textobjects,
-    }
+        treesitter_textobjects,
+    },
 }
 
 add_plugin {
@@ -159,17 +108,17 @@ add_plugin {
     name = "tabout",
     dependencies = { treesitter },
     event = "InsertEnter",
+    config = config("tabout"),
 }
 
 add_plugin {
     "stevearc/oil.nvim",
     name = "oil",
+    config = config("oil"),
     dependencies = {
         nvim_web_devicons_plugin,
     },
-    cond = function()
-        return not vim.g.vscode
-    end,
+    cond = not_vscode,
 }
 
 local telescope_extension_ui_select = add_plugin {
@@ -189,29 +138,26 @@ add_plugin {
     "nvim-telescope/telescope.nvim",
     name = "telescope",
     branch = "master",
+    config = config("telescope"),
     dependencies = {
         telescope_extension_ui_select,
         telescope_extension_fzf_native,
     },
-    cond = function()
-        return not vim.g.vscode
-    end,
+    cond = not_vscode,
 }
 
 add_plugin {
     "nvim-lualine/lualine.nvim",
     name = "lualine",
+    config = config("lualine"),
     dependencies = {
         nvim_web_devicons_plugin,
-        vim_devicons_plugin,
     },
     event = "VeryLazy",
-    cond = function()
-        return not vim.g.vscode
-    end,
+    cond = not_vscode,
 }
 
-local lazydev_plugin = {
+local lazydev_plugin = add_plugin {
     "folke/lazydev.nvim",
     ft = "lua", -- Only load on lua files
     opts = {
@@ -225,46 +171,44 @@ local lazydev_plugin = {
 local luasnip = add_plugin {
     "L3MON4D3/LuaSnip",
     name = "luasnip",
+    config = config("luasnip"),
     build = "make install_jsregexp"
 }
 
 add_plugin {
     "MeanderingProgrammer/render-markdown.nvim",
     name = "render-markdown",
+    config = config("render-markdown"),
     dependencies = {
         mini_plugin,
         treesitter,
     },
-    cond = function()
-        return not vim.g.vscode
-    end,
+    cond = not_vscode,
 }
 
 add_plugin {
     "saghen/blink.cmp",
     name = "blink-cmp",
+    config = config("blink-cmp"),
     dependencies = {
         luasnip,
         lazydev_plugin,
     },
     version = "1.*",
-    cond = function()
-        return not vim.g.vscode
-    end,
+    cond = not_vscode,
 }
 
 add_plugin {
     "lewis6991/gitsigns.nvim",
     name = "gitsigns",
+    config = config("gitsigns"),
 }
 
 add_plugin {
     "rmagatti/auto-session",
     name = "auto-session",
-    cond = function()
-        return not vim.g.vscode
-    end,
+    config = config("auto-session"),
+    cond = not_vscode,
 }
 
 return plugins
-

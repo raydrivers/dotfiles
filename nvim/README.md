@@ -6,13 +6,12 @@ Less plugins, more config code.
 ## Structure
 
 - `plugins/` – Custom plugins
-- `themes/` – Color schemes (lush.nvim)
-- `lua/`
-  - `options/` – Core config and remaps
-  - `pkgs/` – Package manager abstraction
-  - `plugins/` – Plugin configs by lifecycle
-  - `prelude/` – First-run configuration
-  - `utils/` – Global utilities
+- `lua/udv/`
+    - `options/` – config
+    - `remaps/` – remaps
+    - `plugins.lua` – Plugin list
+    - `plugins/` – Plugin configs
+    - `snippets/` - LuaSnip snippets
 
 ## Portability
 

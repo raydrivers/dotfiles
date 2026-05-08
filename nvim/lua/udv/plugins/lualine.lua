@@ -1,18 +1,6 @@
 local lualine = require("lualine")
 
-local trailing_ws = {}
 local harpoon_index = {}
-
-local function check_trailing_ws(buf)
-    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    for _, line in ipairs(lines) do
-        if line:match("%s$") then
-            trailing_ws[buf] = true
-            return
-        end
-    end
-    trailing_ws[buf] = false
-end
 
 local function check_harpoon(buf)
     local ok, harpoon = pcall(require, "harpoon")
@@ -39,18 +27,12 @@ local function check_harpoon(buf)
     harpoon_index[buf] = nil
 end
 
-vim.api.nvim_create_autocmd(
-    { "TextChanged", "InsertLeave", "BufEnter" },
-    { callback = function(ev) check_trailing_ws(ev.buf) end }
-)
-
 vim.api.nvim_create_autocmd("BufEnter", {
     callback = function(ev) check_harpoon(ev.buf) end,
 })
 
 vim.api.nvim_create_autocmd("BufDelete", {
     callback = function(ev)
-        trailing_ws[ev.buf] = nil
         harpoon_index[ev.buf] = nil
     end,
 })
@@ -62,11 +44,6 @@ local conditions = {
     hide_in_width = function()
         return vim.fn.winwidth(0) > 80
     end,
-    check_git_workspace = function()
-        local filepath = vim.fn.expand('%:p:h')
-        local gitdir = vim.fn.finddir('.git', filepath .. ';')
-        return gitdir and #gitdir > 0 and #gitdir < #filepath
-    end,
 }
 
 local config = {
@@ -74,7 +51,7 @@ local config = {
         disabled_filetypes = {},
         component_separators = '',
         section_separators = '',
-        theme = "auto",
+        theme = "base16",
     },
     sections = {
         lualine_a = {},
@@ -192,10 +169,6 @@ ins_right_main {
         local idx = harpoon_index[buf]
         if idx then
             table.insert(indicators, "♆ " .. idx)
-        end
-
-        if trailing_ws[buf] then
-            table.insert(indicators, "⚐")
         end
 
         return table.concat(indicators, " ")
