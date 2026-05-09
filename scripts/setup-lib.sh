@@ -1,3 +1,7 @@
+. "$DOTFILES_DIR/scripts/path-lib.sh"
+
+DOTFILES_LINK_DIR="$(native_path "$DOTFILES_DIR")"
+
 backup() {
     local target="$1"
 
@@ -21,11 +25,11 @@ section() {
 
 lnk() {
     local path="$1"
-    local source="$DOTFILES_DIR/$path"
+    local source="$DOTFILES_LINK_DIR/$path"
     local target="$2"
     local name="$(basename "$path")"
 
-    if [ -L "$target" ] && [ "$(readlink "$target")" = "$source" ]; then
+    if native_link_matches "$source" "$target"; then
         echo "@ $name"
         return
     fi
@@ -33,7 +37,7 @@ lnk() {
     mkdir -p "$(dirname "$target")"
 
     backup "$target"
-    ln -sfn "$source" "$target"
+    native_link "$source" "$target"
 
     echo "+ $name"
 }
@@ -131,7 +135,8 @@ cleanup_collect_stale_links() {
         from_dotfiles=
         stale=
 
-        if [ "${target#"$DOTFILES_DIR"}" != "$target" ]; then
+        if [ "${target#"$DOTFILES_DIR"}" != "$target" ] ||
+            [ "${target#"$DOTFILES_LINK_DIR"}" != "$target" ]; then
             from_dotfiles=1
         fi
 
