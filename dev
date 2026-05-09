@@ -1,12 +1,9 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 
-git pull --rebase
-
 ./setup.sh
 ./cleanup.sh
 
-git add -A
-git diff --cached --quiet || git commit
+./ai/setup.sh
+./ai/cleanup.sh
 
-git push

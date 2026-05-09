@@ -38,6 +38,63 @@ lnk() {
     echo "+ $name"
 }
 
+dir() {
+    local target="$1"
+    local name="$(basename "$target")"
+
+    if [ -d "$target" ] && [ ! -L "$target" ]; then
+        echo "@ $name"
+        return
+    fi
+
+    backup "$target"
+    mkdir -p "$target" || exit
+
+    echo "+ $name"
+}
+
+gen() {
+    local path="$1"
+    local generator="$DOTFILES_DIR/$path"
+    local target="$2"
+    local name="$(basename "$target")"
+    local tmp
+
+    tmp="$(mktemp /tmp/dotfiles.XXXXXX)"
+    "$generator" > "$tmp" || exit
+
+    if [ -f "$target" ] && cmp -s "$tmp" "$target"; then
+        rm "$tmp"
+        echo "@ $name"
+        return
+    fi
+
+    mkdir -p "$(dirname "$target")" || exit
+
+    backup "$target" || exit
+    mv "$tmp" "$target" || exit
+
+    echo "+ $name"
+}
+
+lnk_tree() {
+    local source="$1"
+    local target="$2"
+    local file
+    local path
+
+    while IFS= read -r file; do
+        if [ ! -f "$file" ]; then
+            continue
+        fi
+
+        path="${file#"$source/"}"
+        lnk "${file#"$DOTFILES_DIR/"}" "$target/$path"
+    done < <(
+        find "$source" -type f | sort
+    )
+}
+
 git_config_add_once() {
     local file="$1"
     local key="$2"

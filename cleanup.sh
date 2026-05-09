@@ -10,8 +10,6 @@ cleanup_dirs=(
     "$HOME"
     "$HOME/.config"
     "$HOME/.local/bin"
-    "$HOME/.claude"
-    "$HOME/.codex"
 )
 
 section "cleanup"
