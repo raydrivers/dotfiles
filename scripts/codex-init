@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -euo pipefail
+
+script="${BASH_SOURCE[0]}"
+while [ -L "$script" ]; do
+    dir="$(cd "$(dirname "$script")" && pwd)"
+    target="$(readlink "$script")"
+    case "$target" in
+        /*) script="$target" ;;
+        *) script="$dir/$target" ;;
+    esac
+done
+
+DOTFILES_DIR="$(cd "$(dirname "$script")/.." && pwd)"
+CONFIG_DIR="$DOTFILES_DIR/ai/codex/project-configs"
+
+usage() {
+    echo "usage: codex-init <profile-name>"
+    echo
+    echo "available profiles:"
+    for config in "$CONFIG_DIR"/*.toml; do
+        [ -f "$config" ] || continue
+        basename "$config" .toml
+    done | sort | sed 's/^/  /'
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    usage
+    exit 0
+fi
+
+if [ "$#" -ne 1 ]; then
+    usage >&2
+    exit 2
+fi
+
+profile="$1"
+source="$CONFIG_DIR/$profile.toml"
+target=".codex/config.toml"
+
+if [ ! -f "$source" ]; then
+    echo "unknown profile: $profile" >&2
+    echo >&2
+    usage >&2
+    exit 2
+fi
+
+mkdir -p .codex
+
+if [ -e "$target" ]; then
+    echo "$target already exists" >&2
+    exit 1
+fi
+
+cp "$source" "$target"
+echo "+ $target"
